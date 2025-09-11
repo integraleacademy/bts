@@ -1,16 +1,75 @@
-.table {
+/* --- FORMULAIRE STAGIAIRE --- */
+.form-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 30px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.form-logo {
+  height: 100px;
+  width: auto;
+  margin-bottom: 20px;
+}
+
+.form-container h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.form-container h3 {
+  margin: 10px 0 20px;
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-container form label {
+  display: block;
+  margin-bottom: 15px;
+  text-align: left;
+  font-weight: 500;
+}
+
+.form-container form input,
+.form-container form select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.form-container .btn {
+  background: #F4C45A;
+  color: #000;
+  font-weight: bold;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+/* --- ADMIN --- */
+.admin-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.table th {
+.admin-table th {
   background: #F4C45A;
   color: #000;
   text-align: left;
   padding: 10px;
 }
 
-.table td {
+.admin-table td {
   padding: 10px;
   border-bottom: 1px solid #ddd;
 }
@@ -29,17 +88,20 @@
   margin-bottom: 5px;
 }
 
-.btn.small {
-  padding: 4px 10px;
-  font-size: 13px;
+.admin-btn {
+  background: #F4C45A;
+  color: #000;
+  font-weight: bold;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 2px;
+  font-size: 14px;
 }
 
-.btn.danger {
-  background: #e74c3c;
-  color: #fff;
-}
+.admin-btn.small { font-size: 12px; padding: 4px 8px; }
+.admin-btn.danger { background: #e74c3c; color: #fff; }
 
-.add-form input {
-  margin-right: 10px;
-  padding: 6px;
-}
+/* Header fix (supprime le logo énorme) */
+header .logo { height: 50px; width: auto; }
