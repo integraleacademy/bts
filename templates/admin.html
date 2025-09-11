@@ -17,13 +17,19 @@
     <td>{{r.nom}}</td>
     <td>{{r.prenom}}</td>
     <td>
-      <form method="post" action="/update/{{r.id}}">
+      <!-- Badge coloré -->
+      <span class="badge" style="background: {{ r.status|status_color }};">
+        {{ r.status }}
+      </span>
+
+      <!-- Formulaire de changement -->
+      <form method="post" action="/update/{{r.id}}" style="margin-top:5px;">
         <select name="status">
           {% for s in statuses %}
             <option value="{{s}}" {% if s == r.status %}selected{% endif %}>{{s}}</option>
           {% endfor %}
         </select>
-        <button type="submit" class="btn">💾 Enregistrer</button>
+        <button type="submit" class="btn">💾</button>
       </form>
     </td>
     <td>
