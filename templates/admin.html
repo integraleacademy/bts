@@ -1,1 +1,39 @@
-{% extends 'base.html' %}{% block content %}<h2>Administration</h2><form method='post' action='/admin/add' class='card'><input name='nom' placeholder='Nom' required><input name='prenom' placeholder='Prénom' required><button class='btn'>➕ Ajouter</button></form><table class='table'><tr><th>Nom</th><th>Prénom</th><th>Status</th><th>Actions</th></tr>{% for r in rows %}<tr><td>{{r.nom}}</td><td>{{r.prenom}}</td><td><span class='badge {{r.status}}'>{{r.status}}</span></td><td><form method='post' action='/update/{{r.id}}'><select name='status'>{% for s in statuses %}<option value='{{s}}' {% if r.status==s %}selected{% endif %}>{{s}}</option>{% endfor %}</select><button class='btn'>✏️</button></form><form method='post' action='/delete/{{r.id}}' onsubmit="return confirm('Supprimer ?');"><button class='btn'>🗑️</button></form><a href='/fiche/{{r.id}}' class='btn'>Fiche</a></td></tr>{% endfor %}</table>{% endblock %}
+{% extends 'base.html' %}
+{% block content %}
+<h2>Administration</h2>
+
+<form method="post" action="/admin/add" class="card">
+  <input name="nom" placeholder="Nom" required>
+  <input name="prenom" placeholder="Prénom" required>
+  <button class="btn">➕ Ajouter</button>
+</form>
+
+<table class="table">
+  <tr>
+    <th>Nom</th><th>Prénom</th><th>Status</th><th>Actions</th>
+  </tr>
+  {% for r in rows %}
+  <tr>
+    <td>{{r.nom}}</td>
+    <td>{{r.prenom}}</td>
+    <td>
+      <form method="post" action="/update/{{r.id}}">
+        <select name="status">
+          {% for s in statuses %}
+            <option value="{{s}}" {% if s == r.status %}selected{% endif %}>{{s}}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn">💾 Enregistrer</button>
+      </form>
+    </td>
+    <td>
+      <a class="btn" href="{{ url_for('edit', id=r.id) }}">✏️ Modifier</a>
+      <form method="post" action="/delete/{{r.id}}" style="display:inline;">
+        <button type="submit" class="btn">🗑️ Supprimer</button>
+      </form>
+      <a class="btn" href="{{ url_for('fiche', id=r.id) }}">🖨️ Fiche</a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}
