@@ -13,10 +13,10 @@ app.secret_key = SECRET_KEY
 _SAVE_LOCK = threading.Lock()
 
 STATUSES = [
-    ("A traiter", "red"),
-    ("Saisi par l'entreprise", "orange"),
-    ("Signature en cours", "gold"),
-    ("Transmis à l'OPCO", "green")
+    "A traiter",
+    "Saisi par l'entreprise",
+    "Signature en cours",
+    "Transmis à l'OPCO"
 ]
 
 def _load_data():
@@ -39,6 +39,17 @@ def require_admin(view):
         return view(*a,**kw)
     wrapper.__name__ = view.__name__
     return wrapper
+
+# filtre Jinja pour la couleur du statut
+@app.template_filter("status_color")
+def status_color(status):
+    mapping = {
+        "A traiter": "red",
+        "Saisi par l'entreprise": "orange",
+        "Signature en cours": "gold",
+        "Transmis à l'OPCO": "green"
+    }
+    return mapping.get(status, "gray")
 
 @app.route("/") 
 def index(): return render_template("index.html")
@@ -75,7 +86,7 @@ def logout():
 @require_admin
 def admin():
     data = _load_data()
-    return render_template("admin.html", rows=data, statuses=[s for s,_ in STATUSES])
+    return render_template("admin.html", rows=data, statuses=STATUSES)
 
 @app.route("/update/<id>",methods=["POST"])
 @require_admin
@@ -146,7 +157,7 @@ def edit(id):
         flash("Contrat mis à jour.","ok")
         return redirect(url_for("admin"))
 
-    return render_template("edit.html", row=contract, statuses=[s for s,_ in STATUSES])
+    return render_template("edit.html", row=contract, statuses=STATUSES)
 
 if __name__=="__main__": 
     app.run(host="0.0.0.0",port=5000)
