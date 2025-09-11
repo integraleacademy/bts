@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Modifier un contrat</h2>
+<form method="post" class="card">
+  <label>Nom*<input name="nom" value="{{row.nom}}" required></label>
+  <label>Prénom*<input name="prenom" value="{{row.prenom}}" required></label>
+  <label>BTS*
+    <select name="bts" required>
+      {% for opt in ["BTS MOS","BTS CI","BTS PI","BTS MCO","BTS NDRC"] %}
+        <option value="{{opt}}" {% if row.bts == opt %}selected{% endif %}>{{opt}}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Entreprise*<input name="entreprise" value="{{row.entreprise}}" required></label>
+  <label>SIRET*<input name="siret" value="{{row.siret}}" required></label>
+  <label>Nom responsable*<input name="resp_nom" value="{{row.resp_nom}}" required></label>
+  <label>Email responsable*<input type="email" name="resp_mail" value="{{row.resp_mail}}" required></label>
+  <label>Téléphone responsable<input name="resp_tel" value="{{row.resp_tel}}"></label>
+  <label>Date début contrat*<input type="date" name="date_debut" value="{{row.date_debut}}" required></label>
+  <label>Statut
+    <select name="status">
+      {% for s in statuses %}
+        <option value="{{s}}" {% if row.status == s %}selected{% endif %}>{{s}}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit" class="btn">💾 Enregistrer</button>
+  <a href="{{ url_for('admin') }}" class="btn">⬅️ Retour</a>
+</form>
+{% endblock %}
