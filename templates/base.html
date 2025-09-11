@@ -1,1 +1,26 @@
-<!DOCTYPE html><html lang='fr'><head><meta charset='UTF-8'><title>Intégrale Academy</title><link rel='stylesheet' href='/static/css/style.css'></head><body><header><img src='/static/img/logo.png' alt='Logo' class='logo'><h1>Intégrale Academy – Contrats</h1><nav>{% if session.get('is_admin') %}<a href='/admin'>Admin</a><a href='/logout'>Déconnexion</a>{% else %}<a href='/login'>Admin</a>{% endif %}</nav></header><main>{% block content %}{% endblock %}</main><footer>© 2025 Intégrale Academy</footer></body></html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Intégrale Academy – Contrats</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Intégrale Academy – Contrats</h1>
+    <nav>
+      {% if session.get('is_admin') %}
+        <a href="{{ url_for('logout') }}">Déconnexion</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    <p>© 2025 Intégrale Academy</p>
+  </footer>
+</body>
+</html>
