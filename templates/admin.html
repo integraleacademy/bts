@@ -2,18 +2,16 @@
 {% block content %}
 <h2>Administration</h2>
 
-<!-- Formulaire pour ajouter manuellement -->
 <div class="card">
   <form method="post" action="/admin/add" class="add-form">
     <input name="nom" placeholder="Nom" required>
     <input name="prenom" placeholder="Prénom" required>
-    <button class="btn">➕ Ajouter</button>
+    <button class="admin-btn">➕ Ajouter</button>
   </form>
 </div>
 
-<!-- Tableau des contrats -->
 <div class="card">
-  <table class="table">
+  <table class="admin-table">
     <thead>
       <tr>
         <th>Nom</th>
@@ -28,27 +26,24 @@
         <td>{{r.nom}}</td>
         <td>{{r.prenom}}</td>
         <td>
-          <!-- Badge coloré -->
           <span class="badge" style="background: {{ r.status|status_color }};">
             {{ r.status }}
           </span>
-
-          <!-- Formulaire de mise à jour -->
           <form method="post" action="/update/{{r.id}}" class="inline-form">
             <select name="status">
               {% for s in statuses %}
                 <option value="{{s}}" {% if s == r.status %}selected{% endif %}>{{s}}</option>
               {% endfor %}
             </select>
-            <button type="submit" class="btn small">💾</button>
+            <button type="submit" class="admin-btn small">💾</button>
           </form>
         </td>
         <td>
-          <a class="btn small" href="{{ url_for('edit', id=r.id) }}">✏️ Modifier</a>
+          <a class="admin-btn small" href="{{ url_for('edit', id=r.id) }}">✏️ Modifier</a>
           <form method="post" action="/delete/{{r.id}}" class="inline-form">
-            <button type="submit" class="btn small danger">🗑️ Supprimer</button>
+            <button type="submit" class="admin-btn small danger">🗑️ Supprimer</button>
           </form>
-          <a class="btn small" href="{{ url_for('fiche', id=r.id) }}">🖨️ Fiche</a>
+          <a class="admin-btn small" href="{{ url_for('fiche', id=r.id) }}">🖨️ Fiche</a>
         </td>
       </tr>
       {% endfor %}
