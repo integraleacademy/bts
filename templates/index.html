@@ -1,1 +1,46 @@
-{% extends 'base.html' %}{% block content %}<h2>Soumettre un contrat</h2><form method='post' action='/submit' class='card'><label>Nom*<input name='nom' required></label><label>Prénom*<input name='prenom' required></label><label>BTS*<select name='bts'><option>BTS MOS</option><option>BTS CI</option><option>BTS PI</option><option>BTS MCO</option><option>BTS NDRC</option></select></label><label>Entreprise*<input name='entreprise' required></label><label>SIRET*<input name='siret' required></label><label>Nom responsable*<input name='resp_nom' required></label><label>Email responsable*<input type='email' name='resp_mail' required></label><label>Téléphone responsable<input name='resp_tel'></label><label>Date début*<input type='date' name='date_debut' required></label><button class='btn'>Envoyer</button></form>{% endblock %}
+{% extends 'base.html' %}
+{% block content %}
+<div class="form-container">
+  <img src="/static/img/logo.png" alt="Logo" class="logo">
+  <h2>Dossier stagiaire Intégrale Academy</h2>
+  <h3>Contrat d'apprentissage</h3>
+
+  <form method="post" action="/submit">
+    <label>Nom :
+      <input name="nom" required>
+    </label>
+    <label>Prénom :
+      <input name="prenom" required>
+    </label>
+    <label>BTS :
+      <select name="bts" required>
+        <option value="">-- Sélectionner --</option>
+        <option>BTS MOS</option>
+        <option>BTS CI</option>
+        <option>BTS PI</option>
+        <option>BTS MCO</option>
+        <option>BTS NDRC</option>
+      </select>
+    </label>
+    <label>Nom de l'entreprise :
+      <input name="entreprise" required>
+    </label>
+    <label>SIRET de l'entreprise :
+      <input name="siret" pattern="\\d{14}" placeholder="14 chiffres" required>
+    </label>
+    <label>Nom du responsable :
+      <input name="resp_nom" required>
+    </label>
+    <label>Email du responsable :
+      <input type="email" name="resp_mail" required>
+    </label>
+    <label>Téléphone du responsable :
+      <input name="resp_tel" required>
+    </label>
+    <label>Date de début du contrat :
+      <input type="date" name="date_debut" required>
+    </label>
+    <button type="submit" class="btn">Envoyer</button>
+  </form>
+</div>
+{% endblock %}
