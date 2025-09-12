@@ -17,6 +17,7 @@
         <th>Nom</th>
         <th>Prénom</th>
         <th>Status</th>
+        <th>Commentaire</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -35,6 +36,12 @@
                 <option value="{{s}}" {% if s == r.status %}selected{% endif %}>{{s}}</option>
               {% endfor %}
             </select>
+            <button type="submit" class="admin-btn small">💾</button>
+          </form>
+        </td>
+        <td>
+          <form method="post" action="/update_comment/{{r.id}}" class="inline-form">
+            <input type="text" name="commentaire" value="{{ r.commentaire or '' }}" placeholder="Ajouter un commentaire">
             <button type="submit" class="admin-btn small">💾</button>
           </form>
         </td>
