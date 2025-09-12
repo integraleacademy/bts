@@ -40,7 +40,7 @@ def require_admin(view):
     wrapper.__name__ = view.__name__
     return wrapper
 
-# filtre Jinja pour la couleur du statut
+# filtre couleur statuts
 @app.template_filter("status_color")
 def status_color(status):
     mapping = {
@@ -63,7 +63,8 @@ def submit():
         "entreprise": f.get("entreprise",""), "siret": _digits_only(f.get("siret","")),
         "resp_nom": f.get("resp_nom",""), "resp_mail": f.get("resp_mail",""),
         "resp_tel": f.get("resp_tel",""), "date_debut": f.get("date_debut",""),
-        "status": "A traiter"
+        "status": "A traiter",
+        "commentaire": ""
     }
     data = _load_data(); data.append(item); _save_data(data)
     return render_template("thanks.html", prenom=item["prenom"])
@@ -100,6 +101,18 @@ def update(id):
     _save_data(data)
     return redirect(url_for("admin"))
 
+@app.route("/update_comment/<id>",methods=["POST"])
+@require_admin
+def update_comment(id):
+    commentaire = request.form.get("commentaire","").strip()
+    data = _load_data()
+    for r in data:
+        if r["id"]==id:
+            r["commentaire"] = commentaire
+            break
+    _save_data(data)
+    return redirect(url_for("admin"))
+
 @app.route("/delete/<id>",methods=["POST"])
 @require_admin
 def delete(id):
@@ -125,7 +138,8 @@ def admin_add():
         "entreprise": f.get("entreprise",""), "siret": _digits_only(f.get("siret","")),
         "resp_nom": f.get("resp_nom",""), "resp_mail": f.get("resp_mail",""),
         "resp_tel": f.get("resp_tel",""), "date_debut": f.get("date_debut",""),
-        "status": f.get("status","A traiter")
+        "status": f.get("status","A traiter"),
+        "commentaire": ""
     }
     data = _load_data(); data.append(item); _save_data(data)
     return redirect(url_for("admin"))
@@ -153,11 +167,9 @@ def edit(id):
         contract["resp_tel"] = request.form.get("resp_tel","").strip()
         contract["date_debut"] = request.form.get("date_debut","").strip()
         contract["status"] = request.form.get("status","A traiter")
+        contract["commentaire"] = request.form.get("commentaire","").strip()
         _save_data(data)
         flash("Contrat mis à jour.","ok")
         return redirect(url_for("admin"))
 
     return render_template("edit.html", row=contract, statuses=STATUSES)
-
-if __name__=="__main__": 
-    app.run(host="0.0.0.0",port=5000)
