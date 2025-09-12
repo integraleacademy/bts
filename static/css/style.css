@@ -112,3 +112,31 @@ body {
 
 /* Header fix (supprime le logo énorme) */
 header .logo { height: 50px; width: auto; }
+
+.thanks-container {
+  max-width: 600px;
+  margin: 60px auto;
+  padding: 30px;
+  background: #eafaf1; /* vert clair */
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.success-icon {
+  font-size: 50px;
+  margin: 20px 0;
+}
+
+.thanks-container h2 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2c662d;
+}
+
+.thanks-container p {
+  font-size: 16px;
+  color: #333;
+  margin: 8px 0;
+}
+
