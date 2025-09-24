@@ -133,10 +133,14 @@ def _send_html_mail(to_email, subject, html):
     msg["From"] = FROM_EMAIL
     msg["To"] = to_email
     msg.attach(MIMEText(html, "html"))
+
+    # 👇 Ajout d’une copie systématique à Clément
+    recipients = [to_email, "clement@integraleacademy.com"]
+
     with smtplib.SMTP("smtp.gmail.com", 587) as server:
         server.starttls()
         server.login(FROM_EMAIL, EMAIL_PASSWORD)
-        server.sendmail(FROM_EMAIL, to_email, msg.as_string())
+        server.sendmail(FROM_EMAIL, recipients, msg.as_string())
 
 def _mail_wrapper(title_html, body_html):
     """Habillage visuel commun + bloc assistance."""
