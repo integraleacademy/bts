@@ -29,29 +29,29 @@ STATUSES = [
 ]
 
 def _load_data():
-    if not os.path.exists(DATA_FILE): 
+    if not os.path.exists(DATA_FILE):
         return []
     try:
-        with open(DATA_FILE,"r",encoding="utf-8") as f: 
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
-    except: 
+    except:
         return []
 
 def _save_data(data):
     with _SAVE_LOCK:
-        tmp = DATA_FILE+".tmp"
-        with open(tmp,"w",encoding="utf-8") as f: 
-            json.dump(data,f,ensure_ascii=False,indent=2)
-        os.replace(tmp,DATA_FILE)
+        tmp = DATA_FILE + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        os.replace(tmp, DATA_FILE)
 
-def _digits_only(s): 
-    return re.sub(r"\D","",s or "")
+def _digits_only(s):
+    return re.sub(r"\D", "", s or "")
 
 def require_admin(view):
-    def wrapper(*a,**kw):
-        if not session.get("is_admin"): 
-            return redirect(url_for("login",next=request.path))
-        return view(*a,**kw)
+    def wrapper(*a, **kw):
+        if not session.get("is_admin"):
+            return redirect(url_for("login", next=request.path))
+        return view(*a, **kw)
     wrapper.__name__ = view.__name__
     return wrapper
 
@@ -66,27 +66,27 @@ def status_color(status):
     }
     return mapping.get(status, "gray")
 
-@app.route("/") 
-def index(): 
+@app.route("/")
+def index():
     return render_template("index.html")
 
-@app.route("/submit",methods=["POST"])
+@app.route("/submit", methods=["POST"])
 def submit():
     f = request.form
     item = {
-        "id": str(uuid.uuid4()), 
+        "id": str(uuid.uuid4()),
         "created_at": datetime.utcnow().isoformat(),
-        "nom": f.get("nom",""), 
-        "prenom": f.get("prenom",""), 
-        "mail": f.get("mail",""),
-        "tel": f.get("tel",""),
-        "bts": f.get("bts",""),
-        "entreprise": f.get("entreprise",""), 
-        "siret": _digits_only(f.get("siret","")),
-        "resp_nom": f.get("resp_nom",""), 
-        "resp_mail": f.get("resp_mail",""),
-        "resp_tel": f.get("resp_tel",""), 
-        "date_debut": f.get("date_debut",""),
+        "nom": f.get("nom", ""),
+        "prenom": f.get("prenom", ""),
+        "mail": f.get("mail", ""),
+        "tel": f.get("tel", ""),
+        "bts": f.get("bts", ""),
+        "entreprise": f.get("entreprise", ""),
+        "siret": _digits_only(f.get("siret", "")),
+        "resp_nom": f.get("resp_nom", ""),
+        "resp_mail": f.get("resp_mail", ""),
+        "resp_tel": f.get("resp_tel", ""),
+        "date_debut": f.get("date_debut", ""),
         "status": "A traiter",
         "commentaire": ""
     }
@@ -107,15 +107,28 @@ def send_ack_mail(to_email, prenom, nom):
     subject = "✅ Accusé de réception — Intégrale Academy"
 
     html = f"""
-    <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; background:#fff; padding:20px; border-radius:10px;">
-      <div style="text-align:center;">
-        <img src="https://bts-wpfy.onrender.com/static/img/logo.png" alt="Logo" style="max-height:80px;">
-        <h2 style="color:#2e7d32;">Accusé de réception</h2>
+    <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; background:#fff;
+                padding:20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+      
+      <!-- Logo + Titre -->
+      <div style="text-align:center; margin-bottom:20px;">
+        <img src="https://bts-wpfy.onrender.com/static/img/logo.png" alt="Logo" 
+             style="max-height:80px; display:block; margin:auto;">
+        <h2 style="color:#2e7d32; margin-top:10px; margin-bottom:0;">Intégrale Academy</h2>
       </div>
+
+      <!-- Titre principal -->
+      <h3 style="color:#2e7d32; text-align:center; margin-bottom:20px;">✅ Accusé de réception</h3>
+
+      <!-- Message -->
       <p>Bonjour <b>{prenom} {nom}</b>,</p>
-      <p>✅ Votre demande a bien été enregistrée.</p>
+      <p>Votre demande a bien été enregistrée ✅</p>
       <p>Notre équipe vous contactera très prochainement.</p>
-      <p style="font-size:12px;color:#666;">Ceci est un accusé de réception automatique — Intégrale Academy</p>
+
+      <!-- Pied de page -->
+      <p style="font-size:12px; color:#666; margin-top:30px; text-align:center;">
+        Ceci est un accusé de réception automatique — Intégrale Academy
+      </p>
     </div>
     """
 
@@ -130,18 +143,18 @@ def send_ack_mail(to_email, prenom, nom):
         server.login(FROM_EMAIL, EMAIL_PASSWORD)
         server.sendmail(FROM_EMAIL, to_email, msg.as_string())
 
-@app.route("/login",methods=["GET","POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method=="POST":
-        if request.form.get("password")==ADMIN_PASSWORD:
+    if request.method == "POST":
+        if request.form.get("password") == ADMIN_PASSWORD:
             session["is_admin"] = True
             return redirect(url_for("admin"))
-        flash("Mot de passe incorrect.","error")
+        flash("Mot de passe incorrect.", "error")
     return render_template("login.html")
 
 @app.route("/logout")
 def logout():
-    session.pop("is_admin",None)
+    session.pop("is_admin", None)
     return redirect(url_for("login"))
 
 @app.route("/admin")
@@ -150,35 +163,35 @@ def admin():
     data = _load_data()
     return render_template("admin.html", rows=data, statuses=STATUSES)
 
-@app.route("/update/<id>",methods=["POST"])
+@app.route("/update/<id>", methods=["POST"])
 @require_admin
 def update(id):
-    st = request.form.get("status","A traiter")
+    st = request.form.get("status", "A traiter")
     data = _load_data()
     for r in data:
-        if r["id"]==id:
+        if r["id"] == id:
             r["status"] = st
             break
     _save_data(data)
     return redirect(url_for("admin"))
 
-@app.route("/update_comment/<id>",methods=["POST"])
+@app.route("/update_comment/<id>", methods=["POST"])
 @require_admin
 def update_comment(id):
-    commentaire = request.form.get("commentaire","").strip()
+    commentaire = request.form.get("commentaire", "").strip()
     data = _load_data()
     for r in data:
-        if r["id"]==id:
+        if r["id"] == id:
             r["commentaire"] = commentaire
             break
     _save_data(data)
     return redirect(url_for("admin"))
 
-@app.route("/delete/<id>",methods=["POST"])
+@app.route("/delete/<id>", methods=["POST"])
 @require_admin
 def delete(id):
     data = _load_data()
-    new = [r for r in data if r["id"]!=id]
+    new = [r for r in data if r["id"] != id]
     _save_data(new)
     return redirect(url_for("admin"))
 
@@ -186,27 +199,27 @@ def delete(id):
 @require_admin
 def fiche(id):
     for r in _load_data():
-        if r["id"]==id: 
+        if r["id"] == id:
             return render_template("fiche.html", row=r)
     abort(404)
 
-@app.route("/admin/add",methods=["POST"])
+@app.route("/admin/add", methods=["POST"])
 @require_admin
 def admin_add():
     f = request.form
     item = {
-        "id": str(uuid.uuid4()), 
+        "id": str(uuid.uuid4()),
         "created_at": datetime.utcnow().isoformat(),
-        "nom": f.get("nom",""), 
-        "prenom": f.get("prenom",""), 
-        "bts": f.get("bts",""),
-        "entreprise": f.get("entreprise",""), 
-        "siret": _digits_only(f.get("siret","")),
-        "resp_nom": f.get("resp_nom",""), 
-        "resp_mail": f.get("resp_mail",""),
-        "resp_tel": f.get("resp_tel",""), 
-        "date_debut": f.get("date_debut",""),
-        "status": f.get("status","A traiter"),
+        "nom": f.get("nom", ""),
+        "prenom": f.get("prenom", ""),
+        "bts": f.get("bts", ""),
+        "entreprise": f.get("entreprise", ""),
+        "siret": _digits_only(f.get("siret", "")),
+        "resp_nom": f.get("resp_nom", ""),
+        "resp_mail": f.get("resp_mail", ""),
+        "resp_tel": f.get("resp_tel", ""),
+        "date_debut": f.get("date_debut", ""),
+        "status": f.get("status", "A traiter"),
         "commentaire": ""
     }
     data = _load_data()
@@ -214,7 +227,7 @@ def admin_add():
     _save_data(data)
     return redirect(url_for("admin"))
 
-@app.route("/edit/<id>", methods=["GET","POST"])
+@app.route("/edit/<id>", methods=["GET", "POST"])
 @require_admin
 def edit(id):
     data = _load_data()
@@ -227,19 +240,19 @@ def edit(id):
         abort(404, "Contrat introuvable")
 
     if request.method == "POST":
-        contract["nom"] = request.form.get("nom","").strip()
-        contract["prenom"] = request.form.get("prenom","").strip()
-        contract["bts"] = request.form.get("bts","").strip()
-        contract["entreprise"] = request.form.get("entreprise","").strip()
-        contract["siret"] = _digits_only(request.form.get("siret",""))
-        contract["resp_nom"] = request.form.get("resp_nom","").strip()
-        contract["resp_mail"] = request.form.get("resp_mail","").strip()
-        contract["resp_tel"] = request.form.get("resp_tel","").strip()
-        contract["date_debut"] = request.form.get("date_debut","").strip()
-        contract["status"] = request.form.get("status","A traiter")
-        contract["commentaire"] = request.form.get("commentaire","").strip()
+        contract["nom"] = request.form.get("nom", "").strip()
+        contract["prenom"] = request.form.get("prenom", "").strip()
+        contract["bts"] = request.form.get("bts", "").strip()
+        contract["entreprise"] = request.form.get("entreprise", "").strip()
+        contract["siret"] = _digits_only(request.form.get("siret", ""))
+        contract["resp_nom"] = request.form.get("resp_nom", "").strip()
+        contract["resp_mail"] = request.form.get("resp_mail", "").strip()
+        contract["resp_tel"] = request.form.get("resp_tel", "").strip()
+        contract["date_debut"] = request.form.get("date_debut", "").strip()
+        contract["status"] = request.form.get("status", "A traiter")
+        contract["commentaire"] = request.form.get("commentaire", "").strip()
         _save_data(data)
-        flash("Contrat mis à jour.","ok")
+        flash("Contrat mis à jour.", "ok")
         return redirect(url_for("admin"))
 
     return render_template("edit.html", row=contract, statuses=STATUSES)
