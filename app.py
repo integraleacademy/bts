@@ -145,7 +145,7 @@ def _mail_wrapper(title_html, body_html):
         <a href="https://assistance-alw9.onrender.com/" 
            style="display:inline-block; padding:10px 20px; background:#F4C45A; color:#000; 
                   text-decoration:none; border-radius:6px; font-weight:bold;">
-           💬 Contacter l’assistance Intégrale Academy
+           💬 Cliquez ici pour contacter l’assistance Intégrale Academy
         </a>
         <p style="margin-top:8px; font-size:14px; color:#333;">
           ou par téléphone : <b>04 22 47 07 68</b>
