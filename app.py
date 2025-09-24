@@ -1,6 +1,6 @@
 import os, json, re, uuid, threading
 from datetime import datetime
-import pytz   # ✅ pour heure française
+import pytz  # heure française
 from flask import Flask, render_template, request, redirect, url_for, flash, session, abort
 
 # Envoi des mails
@@ -8,6 +8,9 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+# -----------------------
+# Config & constantes
+# -----------------------
 DATA_DIR = os.environ.get("DATA_DIR", "/data")
 os.makedirs(DATA_DIR, exist_ok=True)
 DATA_FILE = os.path.join(DATA_DIR, "contracts.json")
@@ -30,9 +33,8 @@ STATUSES = [
 ]
 
 # -----------------------
-# Fonctions utilitaires
+# Utilitaires data & auth
 # -----------------------
-
 def _load_data():
     if not os.path.exists(DATA_FILE):
         return []
@@ -53,10 +55,10 @@ def _digits_only(s):
     return re.sub(r"\D", "", s or "")
 
 def require_admin(view):
-    def wrapper(*a,**kw):
+    def wrapper(*a, **kw):
         if not session.get("is_admin"):
             return redirect(url_for("login", next=request.path))
-        return view(*a,**kw)
+        return view(*a, **kw)
     wrapper.__name__ = view.__name__
     return wrapper
 
@@ -80,9 +82,8 @@ def status_color(status):
     return mapping.get(status, "gray")
 
 # -----------------------
-# Routes principales
+# Pages publiques
 # -----------------------
-
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -93,17 +94,17 @@ def submit():
     item = {
         "id": str(uuid.uuid4()),
         "created_at": datetime.utcnow().isoformat(),
-        "nom": f.get("nom", ""),
-        "prenom": f.get("prenom", ""),
-        "mail": f.get("mail", ""),
-        "tel": f.get("tel", ""),
-        "bts": f.get("bts", ""),
-        "entreprise": f.get("entreprise", ""),
+        "nom": f.get("nom", "").strip(),
+        "prenom": f.get("prenom", "").strip(),
+        "mail": f.get("mail", "").strip(),
+        "tel": f.get("tel", "").strip(),
+        "bts": f.get("bts", "").strip(),
+        "entreprise": f.get("entreprise", "").strip(),
         "siret": _digits_only(f.get("siret", "")),
-        "resp_nom": f.get("resp_nom", ""),
-        "resp_mail": f.get("resp_mail", ""),
-        "resp_tel": f.get("resp_tel", ""),
-        "date_debut": f.get("date_debut", ""),
+        "resp_nom": f.get("resp_nom", "").strip(),
+        "resp_mail": f.get("resp_mail", "").strip(),
+        "resp_tel": f.get("resp_tel", "").strip(),
+        "date_debut": f.get("date_debut", "").strip(),
         "status": "A traiter",
         "commentaire": "",
         "logs": []
@@ -126,7 +127,6 @@ def submit():
 # -----------------------
 # Helpers mails
 # -----------------------
-
 def _send_html_mail(to_email, subject, html):
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
@@ -162,9 +162,8 @@ def _mail_wrapper(title_html, body_html):
     """
 
 # -----------------------
-# Exemple modèle de mail
+# Modèles de mails
 # -----------------------
-
 def send_ack_mail(to_email, prenom, nom):
     subject = "✅ Accusé de réception — Intégrale Academy"
     title = '<h3 style="margin:0; font-size:18px; color:#000;">✅ Accusé de réception</h3>'
@@ -175,10 +174,74 @@ def send_ack_mail(to_email, prenom, nom):
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
-# -----------------------
-# Routes admin
-# -----------------------
+def send_mail_apprenti_saisi(to_email, prenom, nom, entreprise):
+    subject = "📄 Contrat d'apprentissage saisi — Intégrale Academy"
+    title = '<h3 style="margin:0; font-size:18px; color:#000;">📄 Contrat saisi</h3>'
+    body = f"""
+      <p>Bonjour <b>{prenom} {nom}</b>,</p>
+      <p>Nous avons saisi votre contrat d'apprentissage et l’avons transmis à votre entreprise <b>{entreprise}</b> ✅</p>
+      <p>L’entreprise doit maintenant compléter sa partie.</p>
+    """
+    _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
+def send_mail_entreprise_saisi(to_email, entreprise, prenom, nom):
+    subject = "📄 Contrat d'apprentissage à compléter — Intégrale Academy"
+    title = '<h3 style="margin:0; font-size:18px; color:#000;">📄 Contrat à compléter</h3>'
+    body = f"""
+      <p>Bonjour,</p>
+      <p>Nous vous avons transmis le contrat d’apprentissage numérique concernant <b>{prenom} {nom}</b> ✅</p>
+      <p>Merci de compléter votre partie dans les meilleurs délais.</p>
+    """
+    _send_html_mail(to_email, subject, _mail_wrapper(title, body))
+
+def send_mail_apprenti_signature(to_email, prenom, nom):
+    subject = "✍️ Signature numérique — Intégrale Academy"
+    title = '<h3 style="margin:0; font-size:18px; color:#000;">✍️ Signature numérique</h3>'
+    body = f"""
+      <p>Bonjour <b>{prenom} {nom}</b>,</p>
+      <p>Nous vous avons envoyé votre <b>contrat d’apprentissage</b> pour <b>signature numérique</b>. ✅</p>
+      <p>Besoin d’aide ? <a href="https://www.integraleacademy.com/assistance" target="_blank">Assistance</a></p>
+    """
+    _send_html_mail(to_email, subject, _mail_wrapper(title, body))
+
+def send_mail_entreprise_signature(to_email, entreprise, prenom, nom):
+    subject = "✍️ Documents à signer — Intégrale Academy"
+    title = '<h3 style="margin:0; font-size:18px; color:#000;">✍️ Documents à signer</h3>'
+    body = f"""
+      <p>Bonjour,</p>
+      <p>Documents concernant <b>{prenom} {nom}</b> :</p>
+      <ul>
+        <li>Contrat d’apprentissage</li>
+        <li>Convention de formation</li>
+      </ul>
+      <p><b>⚠️ Attention : il y a 2 documents à signer.</b></p>
+      <p>Besoin d’aide ? <a href="https://www.integraleacademy.com/assistance" target="_blank">Assistance</a></p>
+    """
+    _send_html_mail(to_email, subject, _mail_wrapper(title, body))
+
+def send_mail_apprenti_opco(to_email, prenom, nom):
+    subject = "📤 Contrat transmis à l’OPCO — Intégrale Academy"
+    title = '<h3 style="margin:0; font-size:18px; color:#000;">📤 Transmission à l’OPCO</h3>'
+    body = f"""
+      <p>Bonjour <b>{prenom} {nom}</b>,</p>
+      <p>Votre contrat a bien été <b>télétransmis à l’OPCO (services de l’État)</b> ✅</p>
+      <p>Besoin d’aide ? <a href="https://www.integraleacademy.com/assistance" target="_blank">Assistance</a></p>
+    """
+    _send_html_mail(to_email, subject, _mail_wrapper(title, body))
+
+def send_mail_entreprise_opco(to_email, entreprise, prenom, nom):
+    subject = "📤 Contrat transmis à l’OPCO — Intégrale Academy"
+    title = '<h3 style="margin:0; font-size:18px; color:#000;">📤 Transmission à l’OPCO</h3>'
+    body = f"""
+      <p>Bonjour,</p>
+      <p>Le contrat d’apprentissage concernant <b>{prenom} {nom}</b> a bien été transmis à l’OPCO ✅</p>
+      <p>Besoin d’aide ? <a href="https://www.integraleacademy.com/assistance" target="_blank">Assistance</a></p>
+    """
+    _send_html_mail(to_email, subject, _mail_wrapper(title, body))
+
+# -----------------------
+# Auth & Admin views
+# -----------------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -199,6 +262,31 @@ def admin():
     data = _load_data()
     return render_template("admin.html", rows=data, statuses=STATUSES)
 
+@app.route("/admin/add", methods=["POST"])
+@require_admin
+def admin_add():
+    f = request.form
+    item = {
+        "id": str(uuid.uuid4()),
+        "created_at": datetime.utcnow().isoformat(),
+        "nom": f.get("nom", "").strip(),
+        "prenom": f.get("prenom", "").strip(),
+        "bts": f.get("bts", "").strip(),
+        "entreprise": f.get("entreprise", "").strip(),
+        "siret": _digits_only(f.get("siret", "")),
+        "resp_nom": f.get("resp_nom", "").strip(),
+        "resp_mail": f.get("resp_mail", "").strip(),
+        "resp_tel": f.get("resp_tel", "").strip(),
+        "date_debut": f.get("date_debut", "").strip(),
+        "status": f.get("status", "A traiter"),
+        "commentaire": "",
+        "logs": []
+    }
+    data = _load_data()
+    data.append(item)
+    _save_data(data)
+    return redirect(url_for("admin"))
+
 @app.route("/update/<id>", methods=["POST"])
 @require_admin
 def update(id):
@@ -207,6 +295,31 @@ def update(id):
     for r in data:
         if r["id"] == id:
             r["status"] = st
+            # Triggers mails selon le statut + logs
+            try:
+                if st == "Saisi par l'entreprise":
+                    if r.get("mail"):
+                        send_mail_apprenti_saisi(r["mail"], r["prenom"], r["nom"], r.get("entreprise",""))
+                        add_log(r, f"Mail 'Saisi par l'entreprise' envoyé à apprenti {r['mail']}")
+                    if r.get("resp_mail"):
+                        send_mail_entreprise_saisi(r["resp_mail"], r.get("entreprise",""), r["prenom"], r["nom"])
+                        add_log(r, f"Mail 'Saisi par l'entreprise' envoyé à entreprise {r['resp_mail']}")
+                elif st == "Signature en cours":
+                    if r.get("mail"):
+                        send_mail_apprenti_signature(r["mail"], r["prenom"], r["nom"])
+                        add_log(r, f"Mail 'Signature en cours' envoyé à apprenti {r['mail']}")
+                    if r.get("resp_mail"):
+                        send_mail_entreprise_signature(r["resp_mail"], r.get("entreprise",""), r["prenom"], r["nom"])
+                        add_log(r, f"Mail 'Signature en cours' envoyé à entreprise {r['resp_mail']}")
+                elif st == "Transmis à l'OPCO":
+                    if r.get("mail"):
+                        send_mail_apprenti_opco(r["mail"], r["prenom"], r["nom"])
+                        add_log(r, f"Mail 'Transmis à l’OPCO' envoyé à apprenti {r['mail']}")
+                    if r.get("resp_mail"):
+                        send_mail_entreprise_opco(r["resp_mail"], r.get("entreprise",""), r["prenom"], r["nom"])
+                        add_log(r, f"Mail 'Transmis à l’OPCO' envoyé à entreprise {r['resp_mail']}")
+            except Exception as e:
+                print("Erreur envoi mails statut:", e)
             _save_data(data)
             break
     return redirect(url_for("admin"))
