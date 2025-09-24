@@ -176,7 +176,6 @@ def send_mail_entreprise_saisi(to_email, entreprise, prenom, nom):
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
-# ✅ NOUVEAU : mails “Signature en cours”
 def send_mail_apprenti_signature(to_email, prenom, nom):
     subject = "✍️ Signature numérique — Intégrale Academy"
     title = '<h3 style="margin:0; font-size:18px; color:#000;">✍️ Signature numérique</h3>'
@@ -201,6 +200,31 @@ def send_mail_entreprise_signature(to_email, entreprise, prenom, nom):
       </ul>
       <p style="margin-top:10px;"><b>⚠️ Attention : il y a 2 documents à signer.</b></p>
       <p>Besoin d’aide ? Contactez l’assistance : 
+        <a href="https://www.integraleacademy.com/assistance" target="_blank">https://www.integraleacademy.com/assistance</a>.
+      </p>
+    """
+    _send_html_mail(to_email, subject, _mail_wrapper(title, body))
+
+def send_mail_apprenti_opco(to_email, prenom, nom):
+    subject = "📤 Contrat transmis à l’OPCO — Intégrale Academy"
+    title = '<h3 style="margin:0; font-size:18px; color:#000;">📤 Transmission à l’OPCO</h3>'
+    body = f"""
+      <p>Bonjour <b>{prenom} {nom}</b>,</p>
+      <p>Votre contrat d’apprentissage a bien été <b>télétransmis à l’OPCO (services de l’État)</b> pour enregistrement ✅</p>
+      <p>Si vous avez des questions, vous pouvez contacter l’assistance : 
+        <a href="https://www.integraleacademy.com/assistance" target="_blank">https://www.integraleacademy.com/assistance</a>.
+      </p>
+    """
+    _send_html_mail(to_email, subject, _mail_wrapper(title, body))
+
+def send_mail_entreprise_opco(to_email, entreprise, prenom, nom):
+    subject = "📤 Contrat transmis à l’OPCO — Intégrale Academy"
+    title = '<h3 style="margin:0; font-size:18px; color:#000;">📤 Transmission à l’OPCO</h3>'
+    body = f"""
+      <p>Bonjour,</p>
+      <p>Le contrat d’apprentissage concernant <b>{prenom} {nom}</b> a bien été 
+         <b>télétransmis à l’OPCO (services de l’État)</b> pour enregistrement ✅</p>
+      <p>Si vous avez des questions, vous pouvez contacter l’assistance : 
         <a href="https://www.integraleacademy.com/assistance" target="_blank">https://www.integraleacademy.com/assistance</a>.
       </p>
     """
@@ -239,7 +263,6 @@ def update(id):
     for r in data:
         if r["id"] == id:
             r["status"] = st
-            # 📤 Triggers mails selon le statut
             try:
                 if st == "Saisi par l'entreprise":
                     if r.get("mail"):
@@ -251,6 +274,11 @@ def update(id):
                         send_mail_apprenti_signature(r["mail"], r["prenom"], r["nom"])
                     if r.get("resp_mail"):
                         send_mail_entreprise_signature(r["resp_mail"], r["entreprise"], r["prenom"], r["nom"])
+                elif st == "Transmis à l'OPCO":
+                    if r.get("mail"):
+                        send_mail_apprenti_opco(r["mail"], r["prenom"], r["nom"])
+                    if r.get("resp_mail"):
+                        send_mail_entreprise_opco(r["resp_mail"], r["entreprise"], r["prenom"], r["nom"])
             except Exception as e:
                 print("Erreur envoi mails statut:", e)
             break
