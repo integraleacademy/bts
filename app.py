@@ -199,7 +199,7 @@ def send_mail_apprenti_saisi(to_email, prenom, nom, entreprise):
 
 def send_mail_entreprise_saisi(to_email, entreprise, prenom, nom):
     subject = "📄 Contrat d'apprentissage à compléter — Intégrale Academy"
-    title = '<h3 style="margin:0; font-size:18px; color:#000;">📄 Contrat d'apprentissage à compléter</h3>'
+    title = '<h3 style="margin:0; font-size:18px; color:#000;">📄 Contrat d\'apprentissage à compléter</h3>'
     body = f"""
       <p>Bonjour,</p>
       <p>Nous vous informons que nous venons de vous transmettre par mail le contrat d'apprentissage à compléter de <b>{prenom} {nom}</b> ✅</p>
@@ -209,7 +209,7 @@ def send_mail_entreprise_saisi(to_email, entreprise, prenom, nom):
 
 def send_mail_apprenti_signature(to_email, prenom, nom):
     subject = "✍️ Signature numérique — Intégrale Academy"
-    title = '<h3 style="margin:0; font-size:18px; color:#000;">✍️ Signature numérique contrat d'apprentissage</h3>'
+    title = '<h3 style="margin:0; font-size:18px; color:#000;">✍️ Signature numérique contrat d\'apprentissage</h3>'
     body = f"""
       <p>Bonjour <b>{prenom} {nom}</b>,</p>
       <p> Nous vous informations que nous vous avons envoyé votre <b>contrat d’apprentissage</b> par mail pour <b>signature électronique/b>. ✅</p>
