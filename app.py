@@ -184,7 +184,7 @@ def send_mail_apprenti_signature(to_email, prenom, nom):
       <p>Bonjour <b>{prenom} {nom}</b>,</p>
       <p>Nous vous avons envoyé votre <b>contrat d’apprentissage</b> pour <b>signature numérique</b>. ✅</p>
       <p>Si vous avez des questions, vous pouvez contacter l’assistance : 
-        <a href="https://assistance-alw9.onrender.com/" target="_blank">https://assistance-alw9.onrender.com/</a>.
+        <a href="https://www.integraleacademy.com/assistance" target="_blank">https://www.integraleacademy.com/assistance</a>.
       </p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
@@ -201,7 +201,7 @@ def send_mail_entreprise_signature(to_email, entreprise, prenom, nom):
       </ul>
       <p style="margin-top:10px;"><b>⚠️ Attention : il y a 2 documents à signer.</b></p>
       <p>Besoin d’aide ? Contactez l’assistance : 
-        <a href="https://assistance-alw9.onrender.com/" target="_blank">https://assistance-alw9.onrender.com/</a>.
+        <a href="https://www.integraleacademy.com/assistance" target="_blank">https://www.integraleacademy.com/assistance</a>.
       </p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
