@@ -113,12 +113,12 @@ def send_ack_mail(to_email, prenom, nom):
       <!-- Logo + Titre -->
       <div style="text-align:center; margin-bottom:15px;">
         <img src="https://bts-wpfy.onrender.com/static/img/logo.png" alt="Logo" 
-             style="max-height:60px; display:block; margin:auto;">
+             style="max-width:180px; height:auto; display:block; margin:auto;">
         <h2 style="color:#000; font-size:20px; margin:10px 0 0 0;">Intégrale Academy</h2>
       </div>
 
       <!-- Titre principal -->
-      <h3 style="color:#2e7d32; text-align:center; margin-bottom:20px; font-size:18px;">✅ Accusé de réception</h3>
+      <h3 style="color:#000; text-align:center; margin-bottom:20px; font-size:18px;">✅ Accusé de réception</h3>
 
       <!-- Message -->
       <p style="font-size:15px;">Bonjour <b>{prenom} {nom}</b>,</p>
