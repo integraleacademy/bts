@@ -1,1 +1,67 @@
-{% extends 'base.html' %}{% block content %}<h2>Fiche contrat</h2><div class='card'><ul><li><b>Nom:</b> {{row.nom}} {{row.prenom}}</li><li><b>BTS:</b> {{row.bts}}</li><li><b>Entreprise:</b> {{row.entreprise}}</li><li><b>SIRET:</b> {{row.siret}}</li><li><b>Responsable:</b> {{row.resp_nom}} - {{row.resp_mail}} - {{row.resp_tel}}</li><li><b>Date début:</b> {{row.date_debut}}</li><li><b>Status:</b> <span class='badge {{row.status}}'>{{row.status}}</span></li></ul><button onclick='window.print()' class='btn'>🖨️ Imprimer</button></div>{% endblock %}
+{% extends 'base.html' %}
+{% block content %}
+<h2>Fiche contrat</h2>
+
+<div class="card">
+  <table class="admin-table">
+    <tr>
+      <th>Nom</th>
+      <td>{{ row.nom }}</td>
+    </tr>
+    <tr>
+      <th>Prénom</th>
+      <td>{{ row.prenom }}</td>
+    </tr>
+    <tr>
+      <th>Email</th>
+      <td>{{ row.mail or '-' }}</td>
+    </tr>
+    <tr>
+      <th>Téléphone</th>
+      <td>{{ row.tel or '-' }}</td>
+    </tr>
+    <tr>
+      <th>BTS</th>
+      <td>{{ row.bts }}</td>
+    </tr>
+    <tr>
+      <th>Entreprise</th>
+      <td>{{ row.entreprise }}</td>
+    </tr>
+    <tr>
+      <th>SIRET</th>
+      <td>{{ row.siret }}</td>
+    </tr>
+    <tr>
+      <th>Nom du responsable</th>
+      <td>{{ row.resp_nom }}</td>
+    </tr>
+    <tr>
+      <th>Email du responsable</th>
+      <td>{{ row.resp_mail }}</td>
+    </tr>
+    <tr>
+      <th>Téléphone du responsable</th>
+      <td>{{ row.resp_tel }}</td>
+    </tr>
+    <tr>
+      <th>Date de début</th>
+      <td>{{ row.date_debut }}</td>
+    </tr>
+    <tr>
+      <th>Status</th>
+      <td>
+        <span class="badge" style="background: {{ row.status|status_color }};">
+          {{ row.status }}
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <th>Commentaire</th>
+      <td>{{ row.commentaire or '-' }}</td>
+    </tr>
+  </table>
+</div>
+
+<a href="{{ url_for('admin') }}" class="admin-btn">⬅️ Retour</a>
+{% endblock %}
