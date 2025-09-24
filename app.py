@@ -189,7 +189,7 @@ def send_ack_mail(to_email, prenom, nom):
 
 def send_mail_apprenti_saisi(to_email, prenom, nom, entreprise):
     subject = "📄 Contrat d'apprentissage saisi — Intégrale Academy"
-    title = '<h3 style="margin:0; font-size:18px; color:#000;">📄 Contrat d'apprentissage saisi</h3>'
+    title = '<h3 style="margin:0; font-size:18px; color:#000;">📄 Contrat d\'apprentissage saisi</h3>'
     body = f"""
       <p>Bonjour <b>{prenom} {nom}</b>,</p>
       <p>Nous vous informons que nous avons saisi votre contrat d'apprentissage et que nous l’avons transmis à votre entreprise <b>{entreprise}</b> ✅</p>
