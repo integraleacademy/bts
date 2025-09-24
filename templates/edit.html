@@ -4,6 +4,10 @@
 <form method="post" class="card">
   <label>Nom*<input name="nom" value="{{row.nom}}" required></label>
   <label>Prénom*<input name="prenom" value="{{row.prenom}}" required></label>
+  
+  <!-- Ajout du champ email apprenti -->
+  <label>Email apprenti*<input type="email" name="mail" value="{{row.mail}}" required></label>
+  
   <label>BTS*
     <select name="bts" required>
       {% for opt in ["BTS MOS","BTS CI","BTS PI","BTS MCO","BTS NDRC"] %}
