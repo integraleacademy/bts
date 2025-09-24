@@ -2,7 +2,7 @@ import os, json, re, uuid, threading
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, session, abort
 
-# Ajout pour l'envoi des mails
+# Envoi des mails
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -13,7 +13,7 @@ DATA_FILE = os.path.join(DATA_DIR, "contracts.json")
 SECRET_KEY = os.environ.get("SECRET_KEY", "change-me")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin")
 
-# ✅ Variables d’environnement pour Gmail
+# ✅ Variables d’environnement Gmail
 FROM_EMAIL = os.environ.get("FROM_EMAIL", "ecole@integraleacademy.com")
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
@@ -29,22 +29,28 @@ STATUSES = [
 ]
 
 def _load_data():
-    if not os.path.exists(DATA_FILE): return []
+    if not os.path.exists(DATA_FILE): 
+        return []
     try:
-        with open(DATA_FILE,"r",encoding="utf-8") as f: return json.load(f)
-    except: return []
+        with open(DATA_FILE,"r",encoding="utf-8") as f: 
+            return json.load(f)
+    except: 
+        return []
 
 def _save_data(data):
     with _SAVE_LOCK:
         tmp = DATA_FILE+".tmp"
-        with open(tmp,"w",encoding="utf-8") as f: json.dump(data,f,ensure_ascii=False,indent=2)
+        with open(tmp,"w",encoding="utf-8") as f: 
+            json.dump(data,f,ensure_ascii=False,indent=2)
         os.replace(tmp,DATA_FILE)
 
-def _digits_only(s): return re.sub(r"\D","",s or "")
+def _digits_only(s): 
+    return re.sub(r"\D","",s or "")
 
 def require_admin(view):
     def wrapper(*a,**kw):
-        if not session.get("is_admin"): return redirect(url_for("login",next=request.path))
+        if not session.get("is_admin"): 
+            return redirect(url_for("login",next=request.path))
         return view(*a,**kw)
     wrapper.__name__ = view.__name__
     return wrapper
@@ -68,7 +74,8 @@ def index():
 def submit():
     f = request.form
     item = {
-        "id": str(uuid.uuid4()), "created_at": datetime.utcnow().isoformat(),
+        "id": str(uuid.uuid4()), 
+        "created_at": datetime.utcnow().isoformat(),
         "nom": f.get("nom",""), 
         "prenom": f.get("prenom",""), 
         "mail": f.get("mail",""),
@@ -83,7 +90,9 @@ def submit():
         "status": "A traiter",
         "commentaire": ""
     }
-    data = _load_data(); data.append(item); _save_data(data)
+    data = _load_data()
+    data.append(item)
+    _save_data(data)
 
     # Envoi du mail accusé réception uniquement à l’apprenti
     try:
@@ -100,7 +109,7 @@ def send_ack_mail(to_email, prenom, nom):
     html = f"""
     <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; background:#fff; padding:20px; border-radius:10px;">
       <div style="text-align:center;">
-        <img src="https://integraleacademy.com/logo.png" alt="Logo" style="max-height:80px;">
+        <img src="https://bts-wpfy.onrender.com/static/img/logo.png" alt="Logo" style="max-height:80px;">
         <h2 style="color:#2e7d32;">Accusé de réception</h2>
       </div>
       <p>Bonjour <b>{prenom} {nom}</b>,</p>
@@ -177,7 +186,8 @@ def delete(id):
 @require_admin
 def fiche(id):
     for r in _load_data():
-        if r["id"]==id: return render_template("fiche.html", row=r)
+        if r["id"]==id: 
+            return render_template("fiche.html", row=r)
     abort(404)
 
 @app.route("/admin/add",methods=["POST"])
@@ -185,7 +195,8 @@ def fiche(id):
 def admin_add():
     f = request.form
     item = {
-        "id": str(uuid.uuid4()), "created_at": datetime.utcnow().isoformat(),
+        "id": str(uuid.uuid4()), 
+        "created_at": datetime.utcnow().isoformat(),
         "nom": f.get("nom",""), 
         "prenom": f.get("prenom",""), 
         "bts": f.get("bts",""),
@@ -198,7 +209,9 @@ def admin_add():
         "status": f.get("status","A traiter"),
         "commentaire": ""
     }
-    data = _load_data(); data.append(item); _save_data(data)
+    data = _load_data()
+    data.append(item)
+    _save_data(data)
     return redirect(url_for("admin"))
 
 @app.route("/edit/<id>", methods=["GET","POST"])
