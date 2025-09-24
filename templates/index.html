@@ -1,30 +1,45 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="form-container">
-  <img src="/static/img/logo.png" alt="Logo" class="form-logo">
+<div style="font-family: Arial, sans-serif; max-width:700px; margin:auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
 
-  <h2>Contrat d'apprentissage Intégrale Academy</h2>
-  <h3>Renseignez les informations nécessaires à la préparation de votre contrat d'apprentissage :</h3>
+  <!-- Logo -->
+  <div style="text-align:center; margin-bottom:20px;">
+    <img src="/static/img/logo.png" alt="Logo" style="max-height:90px;">
+  </div>
 
-  <form method="post" action="/submit">
+  <!-- Titre -->
+  <h2 style="text-align:center; color:#2e7d32; margin-bottom:10px;">
+    Contrat d'apprentissage — Intégrale Academy
+  </h2>
+  <p style="text-align:center; margin-bottom:30px; color:#555;">
+    Merci de renseigner les informations nécessaires à la préparation de votre contrat d'apprentissage.
+  </p>
+
+  <!-- Formulaire -->
+  <form method="post" action="/submit" style="font-size:15px;">
     
     <!-- Partie apprenti -->
-    <fieldset>
-      <legend><strong>L'apprenti(e)</strong></legend>
+    <fieldset style="border:2px solid #2e7d32; border-radius:10px; padding:20px; margin-bottom:25px; background:#f9fff9;">
+      <legend style="font-weight:bold; color:#2e7d32; padding:0 10px;">👩‍🎓 L'apprenti(e)</legend>
+
       <label>Nom :
-        <input name="nom" required>
+        <input name="nom" required style="width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc;">
       </label>
+
       <label>Prénom :
-        <input name="prenom" required>
+        <input name="prenom" required style="width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc;">
       </label>
+
       <label>Email :
-        <input type="email" name="mail" required>
+        <input type="email" name="mail" required style="width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc;">
       </label>
+
       <label>Téléphone :
-        <input name="tel" required>
+        <input name="tel" required style="width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc;">
       </label>
+
       <label>BTS :
-        <select name="bts" required>
+        <select name="bts" required style="width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc;">
           <option value="">-- Sélectionner --</option>
           <option>BTS MOS</option>
           <option>BTS CI</option>
@@ -36,30 +51,41 @@
     </fieldset>
 
     <!-- Partie entreprise -->
-    <fieldset>
-      <legend><strong>L'entreprise</strong></legend>
+    <fieldset style="border:2px solid #2e7d32; border-radius:10px; padding:20px; margin-bottom:25px; background:#f9fff9;">
+      <legend style="font-weight:bold; color:#2e7d32; padding:0 10px;">🏢 L'entreprise</legend>
+
       <label>Nom de l'entreprise :
-        <input name="entreprise" required>
+        <input name="entreprise" required style="width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc;">
       </label>
+
       <label>SIRET de l'entreprise (14 chiffres) :
         <input id="siret" name="siret" maxlength="14" minlength="14" 
-               pattern="\d{14}" placeholder="00000000000000" required>
+               pattern="\d{14}" placeholder="00000000000000" required
+               style="width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc;">
       </label>
+
       <label>Nom et prénom du responsable :
-        <input name="resp_nom" required>
+        <input name="resp_nom" required style="width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc;">
       </label>
+
       <label>Email du responsable :
-        <input type="email" name="resp_mail" required>
+        <input type="email" name="resp_mail" required style="width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc;">
       </label>
+
       <label>Téléphone du responsable :
-        <input name="resp_tel" required>
+        <input name="resp_tel" required style="width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc;">
       </label>
+
       <label>Date de début du contrat (1er jour en entreprise) :
-        <input type="date" name="date_debut" required>
+        <input type="date" name="date_debut" required style="width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc;">
       </label>
     </fieldset>
 
-    <button type="submit" class="btn">Envoyer</button>
+    <div style="text-align:center;">
+      <button type="submit" style="background:#2e7d32; color:#fff; padding:12px 30px; font-size:16px; border:none; border-radius:8px; cursor:pointer;">
+        ✅ Envoyer
+      </button>
+    </div>
   </form>
 </div>
 
