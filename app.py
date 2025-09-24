@@ -13,6 +13,10 @@ DATA_FILE = os.path.join(DATA_DIR, "contracts.json")
 SECRET_KEY = os.environ.get("SECRET_KEY", "change-me")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin")
 
+# ✅ Variables d’environnement pour Gmail
+FROM_EMAIL = os.environ.get("FROM_EMAIL", "ecole@integraleacademy.com")
+EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
+
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
 _SAVE_LOCK = threading.Lock()
@@ -81,16 +85,16 @@ def submit():
     }
     data = _load_data(); data.append(item); _save_data(data)
 
-    # Envoi du mail accusé réception uniquement à l'apprenti
+    # Envoi du mail accusé réception uniquement à l’apprenti
     try:
-        send_ack_mail(item["mail"], item["prenom"], item["nom"])
+        if item["mail"]:
+            send_ack_mail(item["mail"], item["prenom"], item["nom"])
     except Exception as e:
         print("Erreur envoi mail:", e)
 
     return render_template("thanks.html", prenom=item["prenom"])
 
 def send_ack_mail(to_email, prenom, nom):
-    from_email = "ecole@integraleacademy.com"   # à mettre en variable d’env
     subject = "✅ Accusé de réception — Intégrale Academy"
 
     html = f"""
@@ -108,14 +112,14 @@ def send_ack_mail(to_email, prenom, nom):
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
-    msg["From"] = from_email
+    msg["From"] = FROM_EMAIL
     msg["To"] = to_email
     msg.attach(MIMEText(html, "html"))
 
     with smtplib.SMTP("smtp.gmail.com", 587) as server:
         server.starttls()
-        server.login(from_email, os.environ.get("EMAIL_PASSWORD"))
-        server.sendmail(from_email, to_email, msg.as_string())
+        server.login(FROM_EMAIL, EMAIL_PASSWORD)
+        server.sendmail(FROM_EMAIL, to_email, msg.as_string())
 
 @app.route("/login",methods=["GET","POST"])
 def login():
