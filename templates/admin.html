@@ -20,6 +20,7 @@
         <th>Téléphone</th>
         <th>Status</th>
         <th>Commentaire</th>
+        <th>Logs</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -48,6 +49,17 @@
             <input type="text" name="commentaire" value="{{ r.commentaire or '' }}" placeholder="Ajouter un commentaire">
             <button type="submit" class="admin-btn small">💾</button>
           </form>
+        </td>
+        <td>
+          {% if r.logs %}
+            <ul style="font-size:12px; max-height:100px; overflow:auto; margin:0; padding-left:15px;">
+              {% for log in r.logs %}
+                <li>{{ log }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            -
+          {% endif %}
         </td>
         <td>
           <a class="admin-btn small" href="{{ url_for('edit', id=r.id) }}">✏️ Modifier</a>
