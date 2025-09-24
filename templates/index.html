@@ -7,50 +7,66 @@
   <h3>Renseignez les informations nécessaires à la préparation de votre contrat d'apprentissage :</h3>
 
   <form method="post" action="/submit">
-    <label>Nom :
-      <input name="nom" required>
-    </label>
-    <label>Prénom :
-      <input name="prenom" required>
-    </label>
-    <label>BTS :
-      <select name="bts" required>
-        <option value="">-- Sélectionner --</option>
-        <option>BTS MOS</option>
-        <option>BTS CI</option>
-        <option>BTS PI</option>
-        <option>BTS MCO</option>
-        <option>BTS NDRC</option>
-      </select>
-    </label>
-    <label>Nom de l'entreprise :
-      <input name="entreprise" required>
-    </label>
-    <label>SIRET de l'entreprise (14 chiffres) :
-      <input id="siret" name="siret" maxlength="14" minlength="14" 
-             pattern="\d{14}" placeholder="00000000000000" required>
-    </label>
-    <label>Nom et prénom du responsable :
-      <input name="resp_nom" required>
-    </label>
-    <label>Email du responsable :
-      <input type="email" name="resp_mail" required>
-    </label>
-    <label>Téléphone du responsable :
-      <input name="resp_tel" required>
-    </label>
-    <label>Date de début du contrat (1er jour en entreprise) :
-      <input type="date" name="date_debut" required>
-    </label>
+    
+    <!-- Partie apprenti -->
+    <fieldset>
+      <legend><strong>L'apprenti(e)</strong></legend>
+      <label>Nom :
+        <input name="nom" required>
+      </label>
+      <label>Prénom :
+        <input name="prenom" required>
+      </label>
+      <label>Email :
+        <input type="email" name="mail" required>
+      </label>
+      <label>Téléphone :
+        <input name="tel" required>
+      </label>
+      <label>BTS :
+        <select name="bts" required>
+          <option value="">-- Sélectionner --</option>
+          <option>BTS MOS</option>
+          <option>BTS CI</option>
+          <option>BTS PI</option>
+          <option>BTS MCO</option>
+          <option>BTS NDRC</option>
+        </select>
+      </label>
+    </fieldset>
+
+    <!-- Partie entreprise -->
+    <fieldset>
+      <legend><strong>L'entreprise</strong></legend>
+      <label>Nom de l'entreprise :
+        <input name="entreprise" required>
+      </label>
+      <label>SIRET de l'entreprise (14 chiffres) :
+        <input id="siret" name="siret" maxlength="14" minlength="14" 
+               pattern="\d{14}" placeholder="00000000000000" required>
+      </label>
+      <label>Nom et prénom du responsable :
+        <input name="resp_nom" required>
+      </label>
+      <label>Email du responsable :
+        <input type="email" name="resp_mail" required>
+      </label>
+      <label>Téléphone du responsable :
+        <input name="resp_tel" required>
+      </label>
+      <label>Date de début du contrat (1er jour en entreprise) :
+        <input type="date" name="date_debut" required>
+      </label>
+    </fieldset>
+
     <button type="submit" class="btn">Envoyer</button>
   </form>
 </div>
 
-<!-- Script pour forcer uniquement les chiffres et bloquer à 14 -->
 <script>
 document.getElementById("siret").addEventListener("input", function(e) {
-  let v = e.target.value.replace(/\D/g, "");   // supprime tout sauf chiffres
-  if (v.length > 14) v = v.slice(0, 14);      // limite à 14
+  let v = e.target.value.replace(/\D/g, "");
+  if (v.length > 14) v = v.slice(0, 14);
   e.target.value = v;
 });
 </script>
