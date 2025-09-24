@@ -111,19 +111,19 @@ def send_ack_mail(to_email, prenom, nom):
                 padding:20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
       
       <!-- Logo + Titre -->
-      <div style="text-align:center; margin-bottom:20px;">
+      <div style="text-align:center; margin-bottom:15px;">
         <img src="https://bts-wpfy.onrender.com/static/img/logo.png" alt="Logo" 
-             style="max-height:80px; display:block; margin:auto;">
-        <h2 style="color:#2e7d32; margin-top:10px; margin-bottom:0;">Intégrale Academy</h2>
+             style="max-height:60px; display:block; margin:auto;">
+        <h2 style="color:#000; font-size:20px; margin:10px 0 0 0;">Intégrale Academy</h2>
       </div>
 
       <!-- Titre principal -->
-      <h3 style="color:#2e7d32; text-align:center; margin-bottom:20px;">✅ Accusé de réception</h3>
+      <h3 style="color:#2e7d32; text-align:center; margin-bottom:20px; font-size:18px;">✅ Accusé de réception</h3>
 
       <!-- Message -->
-      <p>Bonjour <b>{prenom} {nom}</b>,</p>
-      <p>Votre demande a bien été enregistrée ✅</p>
-      <p>Notre équipe vous contactera très prochainement.</p>
+      <p style="font-size:15px;">Bonjour <b>{prenom} {nom}</b>,</p>
+      <p style="font-size:15px;">Votre demande a bien été enregistrée ✅</p>
+      <p style="font-size:15px;">Notre équipe vous contactera très prochainement.</p>
 
       <!-- Pied de page -->
       <p style="font-size:12px; color:#666; margin-top:30px; text-align:center;">
