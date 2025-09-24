@@ -8,7 +8,7 @@
   </div>
 
   <!-- Titre -->
-  <h2 style="text-align:center; color:#2e7d32; margin-bottom:10px;">
+  <h2 style="text-align:center; color:#F4C45A; margin-bottom:10px;">
     Contrat d'apprentissage — Intégrale Academy
   </h2>
   <p style="text-align:center; margin-bottom:30px; color:#555;">
@@ -19,8 +19,8 @@
   <form method="post" action="/submit" style="font-size:15px;">
     
     <!-- Partie apprenti -->
-    <fieldset style="border:2px solid #2e7d32; border-radius:10px; padding:20px; margin-bottom:25px; background:#f9fff9;">
-      <legend style="font-weight:bold; color:#2e7d32; padding:0 10px;">👩‍🎓 L'apprenti(e)</legend>
+    <fieldset style="border:2px solid #F4C45A; border-radius:10px; padding:20px; margin-bottom:25px; background:#fff;">
+      <legend style="font-weight:bold; color:#F4C45A; padding:0 10px;">👩‍🎓 L'apprenti(e)</legend>
 
       <label>Nom :
         <input name="nom" required style="width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc;">
@@ -51,8 +51,8 @@
     </fieldset>
 
     <!-- Partie entreprise -->
-    <fieldset style="border:2px solid #2e7d32; border-radius:10px; padding:20px; margin-bottom:25px; background:#f9fff9;">
-      <legend style="font-weight:bold; color:#2e7d32; padding:0 10px;">🏢 L'entreprise</legend>
+    <fieldset style="border:2px solid #F4C45A; border-radius:10px; padding:20px; margin-bottom:25px; background:#fff;">
+      <legend style="font-weight:bold; color:#F4C45A; padding:0 10px;">🏢 L'entreprise</legend>
 
       <label>Nom de l'entreprise :
         <input name="entreprise" required style="width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc;">
@@ -82,7 +82,7 @@
     </fieldset>
 
     <div style="text-align:center;">
-      <button type="submit" style="background:#2e7d32; color:#fff; padding:12px 30px; font-size:16px; border:none; border-radius:8px; cursor:pointer;">
+      <button type="submit" style="background:#F4C45A; color:#000; padding:12px 30px; font-size:16px; border:none; border-radius:8px; cursor:pointer;">
         ✅ Envoyer
       </button>
     </div>
@@ -91,7 +91,7 @@
 
 <script>
 document.getElementById("siret").addEventListener("input", function(e) {
-  let v = e.target.value.replace(/\D/g, "");
+  let v = e.target.value.replace(/\\D/g, "");
   if (v.length > 14) v = v.slice(0, 14);
   e.target.value = v;
 });
