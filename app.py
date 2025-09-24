@@ -55,6 +55,13 @@ def require_admin(view):
     wrapper.__name__ = view.__name__
     return wrapper
 
+def add_log(contract, message):
+    """Ajoute une entrée dans l'historique des mails"""
+    ts = datetime.utcnow().strftime("%d/%m/%Y %H:%M")
+    if "logs" not in contract:
+        contract["logs"] = []
+    contract["logs"].append(f"[{ts}] {message}")
+
 # filtre couleur statuts
 @app.template_filter("status_color")
 def status_color(status):
@@ -88,7 +95,8 @@ def submit():
         "resp_tel": f.get("resp_tel", ""),
         "date_debut": f.get("date_debut", ""),
         "status": "A traiter",
-        "commentaire": ""
+        "commentaire": "",
+        "logs": []
     }
     data = _load_data()
     data.append(item)
@@ -98,6 +106,8 @@ def submit():
     try:
         if item["mail"]:
             send_ack_mail(item["mail"], item["prenom"], item["nom"])
+            add_log(item, f"Mail accusé de réception envoyé à {item['mail']}")
+            _save_data(data)
     except Exception as e:
         print("Erreur envoi mail:", e)
 
@@ -162,7 +172,7 @@ def send_mail_apprenti_saisi(to_email, prenom, nom, entreprise):
     body = f"""
       <p>Bonjour <b>{prenom} {nom}</b>,</p>
       <p>Nous avons saisi votre contrat d'apprentissage et l’avons transmis à votre entreprise <b>{entreprise}</b> ✅</p>
-      <p>L’entreprise doit maintenant compléter sa partie. Nous reviendrons vers vous dès que ce sera validé.</p>
+      <p>L’entreprise doit maintenant compléter sa partie.</p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
@@ -182,9 +192,7 @@ def send_mail_apprenti_signature(to_email, prenom, nom):
     body = f"""
       <p>Bonjour <b>{prenom} {nom}</b>,</p>
       <p>Nous vous avons envoyé votre <b>contrat d’apprentissage</b> pour <b>signature numérique</b>. ✅</p>
-      <p>Si vous avez des questions, vous pouvez contacter l’assistance : 
-        <a href="https://www.integraleacademy.com/assistance" target="_blank">https://www.integraleacademy.com/assistance</a>.
-      </p>
+      <p>Besoin d’aide ? <a href="https://www.integraleacademy.com/assistance" target="_blank">Assistance</a></p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
@@ -193,15 +201,13 @@ def send_mail_entreprise_signature(to_email, entreprise, prenom, nom):
     title = '<h3 style="margin:0; font-size:18px; color:#000;">✍️ Documents à signer</h3>'
     body = f"""
       <p>Bonjour,</p>
-      <p>Nous vous avons envoyé pour <b>signature</b> les documents concernant <b>{prenom} {nom}</b> :</p>
-      <ul style="margin-top:8px;">
-        <li><b>Contrat d’apprentissage</b></li>
-        <li><b>Convention de formation</b></li>
+      <p>Documents concernant <b>{prenom} {nom}</b> :</p>
+      <ul>
+        <li>Contrat d’apprentissage</li>
+        <li>Convention de formation</li>
       </ul>
-      <p style="margin-top:10px;"><b>⚠️ Attention : il y a 2 documents à signer.</b></p>
-      <p>Besoin d’aide ? Contactez l’assistance : 
-        <a href="https://www.integraleacademy.com/assistance" target="_blank">https://www.integraleacademy.com/assistance</a>.
-      </p>
+      <p><b>⚠️ Attention : il y a 2 documents à signer.</b></p>
+      <p>Besoin d’aide ? <a href="https://www.integraleacademy.com/assistance" target="_blank">Assistance</a></p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
@@ -210,10 +216,8 @@ def send_mail_apprenti_opco(to_email, prenom, nom):
     title = '<h3 style="margin:0; font-size:18px; color:#000;">📤 Transmission à l’OPCO</h3>'
     body = f"""
       <p>Bonjour <b>{prenom} {nom}</b>,</p>
-      <p>Votre contrat d’apprentissage a bien été <b>télétransmis à l’OPCO (services de l’État)</b> pour enregistrement ✅</p>
-      <p>Si vous avez des questions, vous pouvez contacter l’assistance : 
-        <a href="https://www.integraleacademy.com/assistance" target="_blank">https://www.integraleacademy.com/assistance</a>.
-      </p>
+      <p>Votre contrat a bien été <b>télétransmis à l’OPCO (services de l’État)</b> ✅</p>
+      <p>Besoin d’aide ? <a href="https://www.integraleacademy.com/assistance" target="_blank">Assistance</a></p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
@@ -222,11 +226,8 @@ def send_mail_entreprise_opco(to_email, entreprise, prenom, nom):
     title = '<h3 style="margin:0; font-size:18px; color:#000;">📤 Transmission à l’OPCO</h3>'
     body = f"""
       <p>Bonjour,</p>
-      <p>Le contrat d’apprentissage concernant <b>{prenom} {nom}</b> a bien été 
-         <b>télétransmis à l’OPCO (services de l’État)</b> pour enregistrement ✅</p>
-      <p>Si vous avez des questions, vous pouvez contacter l’assistance : 
-        <a href="https://www.integraleacademy.com/assistance" target="_blank">https://www.integraleacademy.com/assistance</a>.
-      </p>
+      <p>Le contrat d’apprentissage concernant <b>{prenom} {nom}</b> a bien été transmis à l’OPCO ✅</p>
+      <p>Besoin d’aide ? <a href="https://www.integraleacademy.com/assistance" target="_blank">Assistance</a></p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
@@ -267,18 +268,24 @@ def update(id):
                 if st == "Saisi par l'entreprise":
                     if r.get("mail"):
                         send_mail_apprenti_saisi(r["mail"], r["prenom"], r["nom"], r["entreprise"])
+                        add_log(r, f"Mail saisi envoyé à apprenti {r['mail']}")
                     if r.get("resp_mail"):
                         send_mail_entreprise_saisi(r["resp_mail"], r["entreprise"], r["prenom"], r["nom"])
+                        add_log(r, f"Mail saisi envoyé à entreprise {r['resp_mail']}")
                 elif st == "Signature en cours":
                     if r.get("mail"):
                         send_mail_apprenti_signature(r["mail"], r["prenom"], r["nom"])
+                        add_log(r, f"Mail signature envoyé à apprenti {r['mail']}")
                     if r.get("resp_mail"):
                         send_mail_entreprise_signature(r["resp_mail"], r["entreprise"], r["prenom"], r["nom"])
+                        add_log(r, f"Mail signature envoyé à entreprise {r['resp_mail']}")
                 elif st == "Transmis à l'OPCO":
                     if r.get("mail"):
                         send_mail_apprenti_opco(r["mail"], r["prenom"], r["nom"])
+                        add_log(r, f"Mail OPCO envoyé à apprenti {r['mail']}")
                     if r.get("resp_mail"):
                         send_mail_entreprise_opco(r["resp_mail"], r["entreprise"], r["prenom"], r["nom"])
+                        add_log(r, f"Mail OPCO envoyé à entreprise {r['resp_mail']}")
             except Exception as e:
                 print("Erreur envoi mails statut:", e)
             break
@@ -330,7 +337,8 @@ def admin_add():
         "resp_tel": f.get("resp_tel", ""),
         "date_debut": f.get("date_debut", ""),
         "status": f.get("status", "A traiter"),
-        "commentaire": ""
+        "commentaire": "",
+        "logs": []
     }
     data = _load_data()
     data.append(item)
@@ -361,6 +369,8 @@ def edit(id):
         contract["date_debut"] = request.form.get("date_debut", "").strip()
         contract["status"] = request.form.get("status", "A traiter")
         contract["commentaire"] = request.form.get("commentaire", "").strip()
+        if "logs" not in contract:
+            contract["logs"] = []
         _save_data(data)
         flash("Contrat mis à jour.", "ok")
         return redirect(url_for("admin"))
