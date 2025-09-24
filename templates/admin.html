@@ -16,6 +16,8 @@
       <tr>
         <th>Nom</th>
         <th>Prénom</th>
+        <th>Email</th>
+        <th>Téléphone</th>
         <th>Status</th>
         <th>Commentaire</th>
         <th>Actions</th>
@@ -24,8 +26,10 @@
     <tbody>
       {% for r in rows %}
       <tr>
-        <td>{{r.nom}}</td>
-        <td>{{r.prenom}}</td>
+        <td>{{ r.nom }}</td>
+        <td>{{ r.prenom }}</td>
+        <td>{{ r.mail or '-' }}</td>
+        <td>{{ r.tel or '-' }}</td>
         <td>
           <span class="badge" style="background: {{ r.status|status_color }};">
             {{ r.status }}
