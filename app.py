@@ -29,6 +29,10 @@ STATUSES = [
     "Transmis à l'OPCO"
 ]
 
+# -----------------------
+# Fonctions utilitaires
+# -----------------------
+
 def _load_data():
     if not os.path.exists(DATA_FILE):
         return []
@@ -75,6 +79,10 @@ def status_color(status):
     }
     return mapping.get(status, "gray")
 
+# -----------------------
+# Routes principales
+# -----------------------
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -115,7 +123,6 @@ def submit():
 
     return render_template("thanks.html", prenom=item["prenom"])
 
-
 # -----------------------
 # Helpers mails
 # -----------------------
@@ -155,7 +162,7 @@ def _mail_wrapper(title_html, body_html):
     """
 
 # -----------------------
-# Modèles de mails
+# Exemple modèle de mail
 # -----------------------
 
 def send_ack_mail(to_email, prenom, nom):
@@ -167,8 +174,6 @@ def send_ack_mail(to_email, prenom, nom):
       <p>Notre équipe vous contactera très prochainement.</p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
-
-# ... (les autres fonctions send_mail_* restent inchangées, avec add_log après chaque envoi dans /update)
 
 # -----------------------
 # Routes admin
@@ -193,3 +198,75 @@ def logout():
 def admin():
     data = _load_data()
     return render_template("admin.html", rows=data, statuses=STATUSES)
+
+@app.route("/update/<id>", methods=["POST"])
+@require_admin
+def update(id):
+    st = request.form.get("status", "A traiter")
+    data = _load_data()
+    for r in data:
+        if r["id"] == id:
+            r["status"] = st
+            _save_data(data)
+            break
+    return redirect(url_for("admin"))
+
+@app.route("/update_comment/<id>", methods=["POST"])
+@require_admin
+def update_comment(id):
+    commentaire = request.form.get("commentaire", "").strip()
+    data = _load_data()
+    for r in data:
+        if r["id"] == id:
+            r["commentaire"] = commentaire
+            _save_data(data)
+            break
+    return redirect(url_for("admin"))
+
+@app.route("/delete/<id>", methods=["POST"])
+@require_admin
+def delete(id):
+    data = _load_data()
+    new = [r for r in data if r["id"] != id]
+    _save_data(new)
+    return redirect(url_for("admin"))
+
+@app.route("/fiche/<id>")
+@require_admin
+def fiche(id):
+    for r in _load_data():
+        if r["id"] == id:
+            return render_template("fiche.html", row=r)
+    abort(404)
+
+@app.route("/edit/<id>", methods=["GET", "POST"])
+@require_admin
+def edit(id):
+    data = _load_data()
+    contract = None
+    for r in data:
+        if r["id"] == id:
+            contract = r
+            break
+    if not contract:
+        abort(404, "Contrat introuvable")
+
+    if request.method == "POST":
+        contract["nom"] = request.form.get("nom", "").strip()
+        contract["prenom"] = request.form.get("prenom", "").strip()
+        contract["bts"] = request.form.get("bts", "").strip()
+        contract["entreprise"] = request.form.get("entreprise", "").strip()
+        contract["siret"] = _digits_only(request.form.get("siret", ""))
+        contract["resp_nom"] = request.form.get("resp_nom", "").strip()
+        contract["resp_mail"] = request.form.get("resp_mail", "").strip()
+        contract["resp_tel"] = request.form.get("resp_tel", "").strip()
+        contract["date_debut"] = request.form.get("date_debut", "").strip()
+        contract["status"] = request.form.get("status", "A traiter")
+        contract["commentaire"] = request.form.get("commentaire", "").strip()
+        if "logs" not in contract:
+            contract["logs"] = []
+        _save_data(data)
+        flash("Contrat mis à jour.", "ok")
+        return redirect(url_for("admin"))
+
+    return render_template("edit.html", row=contract, statuses=STATUSES)
