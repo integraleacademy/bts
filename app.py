@@ -2,6 +2,11 @@ import os, json, re, uuid, threading
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, session, abort
 
+# Ajout pour l'envoi des mails
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
 DATA_DIR = os.environ.get("DATA_DIR", "/data")
 os.makedirs(DATA_DIR, exist_ok=True)
 DATA_FILE = os.path.join(DATA_DIR, "contracts.json")
@@ -52,22 +57,65 @@ def status_color(status):
     return mapping.get(status, "gray")
 
 @app.route("/") 
-def index(): return render_template("index.html")
+def index(): 
+    return render_template("index.html")
 
 @app.route("/submit",methods=["POST"])
 def submit():
     f = request.form
     item = {
         "id": str(uuid.uuid4()), "created_at": datetime.utcnow().isoformat(),
-        "nom": f.get("nom",""), "prenom": f.get("prenom",""), "bts": f.get("bts",""),
-        "entreprise": f.get("entreprise",""), "siret": _digits_only(f.get("siret","")),
-        "resp_nom": f.get("resp_nom",""), "resp_mail": f.get("resp_mail",""),
-        "resp_tel": f.get("resp_tel",""), "date_debut": f.get("date_debut",""),
+        "nom": f.get("nom",""), 
+        "prenom": f.get("prenom",""), 
+        "mail": f.get("mail",""),
+        "tel": f.get("tel",""),
+        "bts": f.get("bts",""),
+        "entreprise": f.get("entreprise",""), 
+        "siret": _digits_only(f.get("siret","")),
+        "resp_nom": f.get("resp_nom",""), 
+        "resp_mail": f.get("resp_mail",""),
+        "resp_tel": f.get("resp_tel",""), 
+        "date_debut": f.get("date_debut",""),
         "status": "A traiter",
         "commentaire": ""
     }
     data = _load_data(); data.append(item); _save_data(data)
+
+    # Envoi du mail accusé réception uniquement à l'apprenti
+    try:
+        send_ack_mail(item["mail"], item["prenom"], item["nom"])
+    except Exception as e:
+        print("Erreur envoi mail:", e)
+
     return render_template("thanks.html", prenom=item["prenom"])
+
+def send_ack_mail(to_email, prenom, nom):
+    from_email = "ecole@integraleacademy.com"   # à mettre en variable d’env
+    subject = "✅ Accusé de réception — Intégrale Academy"
+
+    html = f"""
+    <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; background:#fff; padding:20px; border-radius:10px;">
+      <div style="text-align:center;">
+        <img src="https://integraleacademy.com/logo.png" alt="Logo" style="max-height:80px;">
+        <h2 style="color:#2e7d32;">Accusé de réception</h2>
+      </div>
+      <p>Bonjour <b>{prenom} {nom}</b>,</p>
+      <p>✅ Votre demande a bien été enregistrée.</p>
+      <p>Notre équipe vous contactera très prochainement.</p>
+      <p style="font-size:12px;color:#666;">Ceci est un accusé de réception automatique — Intégrale Academy</p>
+    </div>
+    """
+
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = from_email
+    msg["To"] = to_email
+    msg.attach(MIMEText(html, "html"))
+
+    with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        server.starttls()
+        server.login(from_email, os.environ.get("EMAIL_PASSWORD"))
+        server.sendmail(from_email, to_email, msg.as_string())
 
 @app.route("/login",methods=["GET","POST"])
 def login():
@@ -134,10 +182,15 @@ def admin_add():
     f = request.form
     item = {
         "id": str(uuid.uuid4()), "created_at": datetime.utcnow().isoformat(),
-        "nom": f.get("nom",""), "prenom": f.get("prenom",""), "bts": f.get("bts",""),
-        "entreprise": f.get("entreprise",""), "siret": _digits_only(f.get("siret","")),
-        "resp_nom": f.get("resp_nom",""), "resp_mail": f.get("resp_mail",""),
-        "resp_tel": f.get("resp_tel",""), "date_debut": f.get("date_debut",""),
+        "nom": f.get("nom",""), 
+        "prenom": f.get("prenom",""), 
+        "bts": f.get("bts",""),
+        "entreprise": f.get("entreprise",""), 
+        "siret": _digits_only(f.get("siret","")),
+        "resp_nom": f.get("resp_nom",""), 
+        "resp_mail": f.get("resp_mail",""),
+        "resp_tel": f.get("resp_tel",""), 
+        "date_debut": f.get("date_debut",""),
         "status": f.get("status","A traiter"),
         "commentaire": ""
     }
