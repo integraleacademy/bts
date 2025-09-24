@@ -1,6 +1,6 @@
 import os, json, re, uuid, threading
 from datetime import datetime
-import pytz  # heure française
+import pytz   # heure française
 from flask import Flask, render_template, request, redirect, url_for, flash, session, abort
 
 # Envoi des mails
@@ -139,7 +139,19 @@ def _send_html_mail(to_email, subject, html):
         server.sendmail(FROM_EMAIL, to_email, msg.as_string())
 
 def _mail_wrapper(title_html, body_html):
-    """Habillage visuel commun (logo + bandeau doré + carte blanche)."""
+    """Habillage visuel commun + bloc assistance."""
+    assistance = """
+      <div style="margin-top:20px; text-align:center;">
+        <a href="https://assistance-alw9.onrender.com/" 
+           style="display:inline-block; padding:10px 20px; background:#F4C45A; color:#000; 
+                  text-decoration:none; border-radius:6px; font-weight:bold;">
+           💬 Contacter l’assistance Intégrale Academy
+        </a>
+        <p style="margin-top:8px; font-size:14px; color:#333;">
+          ou par téléphone : <b>04 22 47 07 68</b>
+        </p>
+      </div>
+    """
     return f"""
     <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; background:#f9f9f9; padding:20px;">
       <div style="background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1); overflow:hidden;">
@@ -153,6 +165,7 @@ def _mail_wrapper(title_html, body_html):
         </div>
         <div style="padding:20px; font-size:15px; color:#333;">
           {body_html}
+          {assistance}
         </div>
         <div style="padding:15px; font-size:12px; color:#777; text-align:center; border-top:1px solid #eee;">
           Ceci est un message automatique — Intégrale Academy
@@ -200,7 +213,6 @@ def send_mail_apprenti_signature(to_email, prenom, nom):
     body = f"""
       <p>Bonjour <b>{prenom} {nom}</b>,</p>
       <p>Nous vous avons envoyé votre <b>contrat d’apprentissage</b> pour <b>signature numérique</b>. ✅</p>
-      <p>Besoin d’aide ? <a href="https://www.integraleacademy.com/assistance" target="_blank">Assistance</a></p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
@@ -215,7 +227,6 @@ def send_mail_entreprise_signature(to_email, entreprise, prenom, nom):
         <li>Convention de formation</li>
       </ul>
       <p><b>⚠️ Attention : il y a 2 documents à signer.</b></p>
-      <p>Besoin d’aide ? <a href="https://www.integraleacademy.com/assistance" target="_blank">Assistance</a></p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
@@ -225,7 +236,6 @@ def send_mail_apprenti_opco(to_email, prenom, nom):
     body = f"""
       <p>Bonjour <b>{prenom} {nom}</b>,</p>
       <p>Votre contrat a bien été <b>télétransmis à l’OPCO (services de l’État)</b> ✅</p>
-      <p>Besoin d’aide ? <a href="https://www.integraleacademy.com/assistance" target="_blank">Assistance</a></p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
@@ -235,7 +245,6 @@ def send_mail_entreprise_opco(to_email, entreprise, prenom, nom):
     body = f"""
       <p>Bonjour,</p>
       <p>Le contrat d’apprentissage concernant <b>{prenom} {nom}</b> a bien été transmis à l’OPCO ✅</p>
-      <p>Besoin d’aide ? <a href="https://www.integraleacademy.com/assistance" target="_blank">Assistance</a></p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
@@ -295,29 +304,28 @@ def update(id):
     for r in data:
         if r["id"] == id:
             r["status"] = st
-            # Triggers mails selon le statut + logs
             try:
                 if st == "Saisi par l'entreprise":
                     if r.get("mail"):
                         send_mail_apprenti_saisi(r["mail"], r["prenom"], r["nom"], r.get("entreprise",""))
-                        add_log(r, f"Mail 'Saisi par l'entreprise' envoyé à apprenti {r['mail']}")
+                        add_log(r, f"Mail 'Saisi par l'entreprise' envoyé à {r['mail']}")
                     if r.get("resp_mail"):
                         send_mail_entreprise_saisi(r["resp_mail"], r.get("entreprise",""), r["prenom"], r["nom"])
-                        add_log(r, f"Mail 'Saisi par l'entreprise' envoyé à entreprise {r['resp_mail']}")
+                        add_log(r, f"Mail 'Saisi par l'entreprise' envoyé à {r['resp_mail']}")
                 elif st == "Signature en cours":
                     if r.get("mail"):
                         send_mail_apprenti_signature(r["mail"], r["prenom"], r["nom"])
-                        add_log(r, f"Mail 'Signature en cours' envoyé à apprenti {r['mail']}")
+                        add_log(r, f"Mail 'Signature en cours' envoyé à {r['mail']}")
                     if r.get("resp_mail"):
                         send_mail_entreprise_signature(r["resp_mail"], r.get("entreprise",""), r["prenom"], r["nom"])
-                        add_log(r, f"Mail 'Signature en cours' envoyé à entreprise {r['resp_mail']}")
+                        add_log(r, f"Mail 'Signature en cours' envoyé à {r['resp_mail']}")
                 elif st == "Transmis à l'OPCO":
                     if r.get("mail"):
                         send_mail_apprenti_opco(r["mail"], r["prenom"], r["nom"])
-                        add_log(r, f"Mail 'Transmis à l’OPCO' envoyé à apprenti {r['mail']}")
+                        add_log(r, f"Mail 'Transmis à l’OPCO' envoyé à {r['mail']}")
                     if r.get("resp_mail"):
                         send_mail_entreprise_opco(r["resp_mail"], r.get("entreprise",""), r["prenom"], r["nom"])
-                        add_log(r, f"Mail 'Transmis à l’OPCO' envoyé à entreprise {r['resp_mail']}")
+                        add_log(r, f"Mail 'Transmis à l’OPCO' envoyé à {r['resp_mail']}")
             except Exception as e:
                 print("Erreur envoi mails statut:", e)
             _save_data(data)
@@ -379,7 +387,7 @@ def edit(id):
         if "logs" not in contract:
             contract["logs"] = []
         _save_data(data)
-        flash("Contrat mis à jour.", "ok")
+        flash("Contrat mis à jour.","ok")
         return redirect(url_for("admin"))
 
     return render_template("edit.html", row=contract, statuses=STATUSES)
