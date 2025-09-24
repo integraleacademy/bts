@@ -193,7 +193,7 @@ def send_mail_apprenti_saisi(to_email, prenom, nom, entreprise):
     body = f"""
       <p>Bonjour <b>{prenom} {nom}</b>,</p>
       <p>Nous vous informons que nous avons saisi votre contrat d'apprentissage et que nous l’avons transmis à votre entreprise <b>{entreprise}</b> ✅</p>
-      <p>L’entreprise doit maintenant compléter toutes les informations. Dès que le contrat d'apprentissage sera finalisé, nous vous le transmettrons pour signature électronique.</p>
+      <p>L’entreprise doit maintenant compléter toutes les informations. Dès que le contrat d'apprentissage sera finalisé, nous vous le transmettrons par mail pour signature électronique.</p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
@@ -203,7 +203,7 @@ def send_mail_entreprise_saisi(to_email, entreprise, prenom, nom):
     body = f"""
       <p>Bonjour,</p>
       <p>Nous vous informons que nous venons de vous transmettre par mail le contrat d'apprentissage à compléter de <b>{prenom} {nom}</b> ✅</p>
-      <p>Nous vous remercions de bien vouloir compléter les informations manquantes (notamment les informations concernant le maître d'apprentissage) afin que nous puissions finaliser le contrat d'apprentissage pour signature électronique et préparer la convention de formation.</p>
+      <p>Nous vous remercions de bien vouloir <b>compléter les informations manquantes</b> (notamment les informations concernant le maître d'apprentissage) afin que nous puissions finaliser le contrat d'apprentissage pour signature électronique et préparer la convention de formation.</p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
@@ -212,7 +212,7 @@ def send_mail_apprenti_signature(to_email, prenom, nom):
     title = '<h3 style="margin:0; font-size:18px; color:#000;">✍️ Signature numérique contrat d\'apprentissage</h3>'
     body = f"""
       <p>Bonjour <b>{prenom} {nom}</b>,</p>
-      <p> Nous vous informations que nous vous avons envoyé votre <b>contrat d’apprentissage</b> par mail pour <b>signature électronique/b>. ✅</p>
+      <p> Nous vous informons que nous vous avons envoyé votre <b>contrat d’apprentissage</b> par mail pour <b>signature électronique</b>. ✅</p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
@@ -226,7 +226,8 @@ def send_mail_entreprise_signature(to_email, entreprise, prenom, nom):
         <li>Contrat d’apprentissage à signer </li>
         <li>Convention de formation à signer </li>
       </ul>
-      <p><b>⚠️ Attention : il y a 2 documents à signer.</b></p>
+      <p><b>⚠️ Attention : il y a 2 documents à signer dans 2 mails différents.</b></p>
+      <p> Dès que l'ensemble des documents seront signés par l'entreprise et l'apprenti, nous nous chargerons de transmettre le dossier auprès de votre OPCO (télétransmission).</p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
@@ -235,7 +236,7 @@ def send_mail_apprenti_opco(to_email, prenom, nom):
     title = '<h3 style="margin:0; font-size:18px; color:#000;">📤 Transmission à l’OPCO</h3>'
     body = f"""
       <p>Bonjour <b>{prenom} {nom}</b>,</p>
-      <p>Nous vous informations que votre contrat d'apprentissage a bien été <b>télétransmis à l’OPCO (services de l’État)</b> pour enregistrement ✅</p>
+      <p>Nous vous informons que votre contrat d'apprentissage a bien été <b>télétransmis à l’OPCO (services de l’État)</b> pour enregistrement ✅</p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
