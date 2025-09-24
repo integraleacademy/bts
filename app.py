@@ -107,28 +107,33 @@ def send_ack_mail(to_email, prenom, nom):
     subject = "✅ Accusé de réception — Intégrale Academy"
 
     html = f"""
-    <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; background:#fff;
-                padding:20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-      
-      <!-- Logo + Titre -->
-      <div style="text-align:center; margin-bottom:15px;">
-        <img src="https://bts-wpfy.onrender.com/static/img/logo.png" alt="Logo" 
-             style="max-width:180px; height:auto; display:block; margin:auto;">
-        <h2 style="color:#000; font-size:20px; margin:10px 0 0 0;">Intégrale Academy</h2>
+    <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; background:#f9f9f9; padding:20px;">
+      <div style="background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1); overflow:hidden;">
+        
+        <!-- Logo + Nom -->
+        <div style="text-align:center; padding:20px 20px 10px 20px;">
+          <img src="https://bts-wpfy.onrender.com/static/img/logo.png" alt="Logo" 
+               style="max-width:100px; height:auto; display:block; margin:auto;">
+          <h2 style="color:#000; font-size:18px; margin:10px 0 0 0;">Intégrale Academy</h2>
+        </div>
+
+        <!-- Bandeau titre -->
+        <div style="background:#F4C45A; padding:12px; text-align:center;">
+          <h3 style="margin:0; font-size:18px; color:#000;">✅ Accusé de réception</h3>
+        </div>
+
+        <!-- Contenu -->
+        <div style="padding:20px; font-size:15px; color:#333;">
+          <p>Bonjour <b>{prenom} {nom}</b>,</p>
+          <p>Votre demande a bien été enregistrée ✅</p>
+          <p>Notre équipe vous contactera très prochainement.</p>
+        </div>
+
+        <!-- Footer -->
+        <div style="padding:15px; font-size:12px; color:#777; text-align:center; border-top:1px solid #eee;">
+          Ceci est un accusé de réception automatique — Intégrale Academy
+        </div>
       </div>
-
-      <!-- Titre principal -->
-      <h3 style="color:#000; text-align:center; margin-bottom:20px; font-size:18px;">✅ Accusé de réception</h3>
-
-      <!-- Message -->
-      <p style="font-size:15px;">Bonjour <b>{prenom} {nom}</b>,</p>
-      <p style="font-size:15px;">Votre demande a bien été enregistrée ✅</p>
-      <p style="font-size:15px;">Notre équipe vous contactera très prochainement.</p>
-
-      <!-- Pied de page -->
-      <p style="font-size:12px; color:#666; margin-top:30px; text-align:center;">
-        Ceci est un accusé de réception automatique — Intégrale Academy
-      </p>
     </div>
     """
 
