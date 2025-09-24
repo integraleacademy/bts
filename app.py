@@ -103,50 +103,104 @@ def submit():
 
     return render_template("thanks.html", prenom=item["prenom"])
 
+
+# -----------------------
+# Mails
+# -----------------------
+
+def _send_html_mail(to_email, subject, html):
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = FROM_EMAIL
+    msg["To"] = to_email
+    msg.attach(MIMEText(html, "html"))
+    with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        server.starttls()
+        server.login(FROM_EMAIL, EMAIL_PASSWORD)
+        server.sendmail(FROM_EMAIL, to_email, msg.as_string())
+
 def send_ack_mail(to_email, prenom, nom):
     subject = "✅ Accusé de réception — Intégrale Academy"
-
     html = f"""
     <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; background:#f9f9f9; padding:20px;">
       <div style="background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1); overflow:hidden;">
-        
-        <!-- Logo + Nom -->
         <div style="text-align:center; padding:20px 20px 10px 20px;">
           <img src="https://bts-wpfy.onrender.com/static/img/logo.png" alt="Logo" 
                style="max-width:100px; height:auto; display:block; margin:auto;">
           <h2 style="color:#000; font-size:18px; margin:10px 0 0 0;">Intégrale Academy</h2>
         </div>
-
-        <!-- Bandeau titre -->
         <div style="background:#F4C45A; padding:12px; text-align:center;">
           <h3 style="margin:0; font-size:18px; color:#000;">✅ Accusé de réception</h3>
         </div>
-
-        <!-- Contenu -->
         <div style="padding:20px; font-size:15px; color:#333;">
           <p>Bonjour <b>{prenom} {nom}</b>,</p>
           <p>Votre demande a bien été enregistrée ✅</p>
           <p>Notre équipe vous contactera très prochainement.</p>
         </div>
-
-        <!-- Footer -->
         <div style="padding:15px; font-size:12px; color:#777; text-align:center; border-top:1px solid #eee;">
           Ceci est un accusé de réception automatique — Intégrale Academy
         </div>
       </div>
     </div>
     """
+    _send_html_mail(to_email, subject, html)
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"] = FROM_EMAIL
-    msg["To"] = to_email
-    msg.attach(MIMEText(html, "html"))
+def send_mail_apprenti_saisi(to_email, prenom, nom, entreprise):
+    subject = "📄 Contrat d'apprentissage saisi — Intégrale Academy"
+    html = f"""
+    <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; background:#f9f9f9; padding:20px;">
+      <div style="background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1); overflow:hidden;">
+        <div style="text-align:center; padding:20px 20px 10px 20px;">
+          <img src="https://bts-wpfy.onrender.com/static/img/logo.png" alt="Logo" 
+               style="max-width:100px; height:auto; display:block; margin:auto;">
+          <h2 style="color:#000; font-size:18px; margin:10px 0 0 0;">Intégrale Academy</h2>
+        </div>
+        <div style="background:#F4C45A; padding:12px; text-align:center;">
+          <h3 style="margin:0; font-size:18px; color:#000;">📄 Contrat saisi</h3>
+        </div>
+        <div style="padding:20px; font-size:15px; color:#333;">
+          <p>Bonjour <b>{prenom} {nom}</b>,</p>
+          <p>Nous avons saisi votre contrat d'apprentissage et l’avons transmis à votre entreprise <b>{entreprise}</b> ✅</p>
+          <p>L’entreprise doit maintenant compléter sa partie. Nous reviendrons vers vous dès que ce sera validé.</p>
+        </div>
+        <div style="padding:15px; font-size:12px; color:#777; text-align:center; border-top:1px solid #eee;">
+          Ceci est un message automatique — Intégrale Academy
+        </div>
+      </div>
+    </div>
+    """
+    _send_html_mail(to_email, subject, html)
 
-    with smtplib.SMTP("smtp.gmail.com", 587) as server:
-        server.starttls()
-        server.login(FROM_EMAIL, EMAIL_PASSWORD)
-        server.sendmail(FROM_EMAIL, to_email, msg.as_string())
+def send_mail_entreprise_saisi(to_email, entreprise, prenom, nom):
+    subject = "📄 Contrat d'apprentissage à compléter — Intégrale Academy"
+    html = f"""
+    <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; background:#f9f9f9; padding:20px;">
+      <div style="background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1); overflow:hidden;">
+        <div style="text-align:center; padding:20px 20px 10px 20px;">
+          <img src="https://bts-wpfy.onrender.com/static/img/logo.png" alt="Logo" 
+               style="max-width:100px; height:auto; display:block; margin:auto;">
+          <h2 style="color:#000; font-size:18px; margin:10px 0 0 0;">Intégrale Academy</h2>
+        </div>
+        <div style="background:#F4C45A; padding:12px; text-align:center;">
+          <h3 style="margin:0; font-size:18px; color:#000;">📄 Contrat à compléter</h3>
+        </div>
+        <div style="padding:20px; font-size:15px; color:#333;">
+          <p>Bonjour,</p>
+          <p>Nous vous avons transmis le contrat d’apprentissage numérique concernant <b>{prenom} {nom}</b> ✅</p>
+          <p>Merci de compléter votre partie dans les meilleurs délais.</p>
+        </div>
+        <div style="padding:15px; font-size:12px; color:#777; text-align:center; border-top:1px solid #eee;">
+          Ceci est un message automatique — Intégrale Academy
+        </div>
+      </div>
+    </div>
+    """
+    _send_html_mail(to_email, subject, html)
+
+
+# -----------------------
+# Routes admin
+# -----------------------
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -176,6 +230,15 @@ def update(id):
     for r in data:
         if r["id"] == id:
             r["status"] = st
+            # ✅ Envoi de mails si "Saisi par l'entreprise"
+            if st == "Saisi par l'entreprise":
+                try:
+                    if r.get("mail"):
+                        send_mail_apprenti_saisi(r["mail"], r["prenom"], r["nom"], r["entreprise"])
+                    if r.get("resp_mail"):
+                        send_mail_entreprise_saisi(r["resp_mail"], r["entreprise"], r["prenom"], r["nom"])
+                except Exception as e:
+                    print("Erreur envoi mails saisie:", e)
             break
     _save_data(data)
     return redirect(url_for("admin"))
