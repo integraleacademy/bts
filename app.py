@@ -253,6 +253,58 @@ def send_mail_entreprise_opco(to_email, entreprise, prenom, nom):
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
+def send_relance_entreprise_contrat(to_email, prenom, nom):
+    subject = "⏰ Relance — Contrat d'apprentissage en attente de signature"
+    title = '<h3 style="margin:0; font-size:18px; color:#000;">⏰ Relance entreprise</h3>'
+    body = f"""
+      <p>Bonjour,</p>
+      <p>Nous vous rappelons que le <b>contrat d’apprentissage</b> concernant <b>{prenom} {nom}</b> 
+      n’a pas encore été signé par votre entreprise.</p>
+      <p>Nous vous invitons à procéder à la <b>signature électronique</b> dans les meilleurs délais afin de ne pas retarder 
+      la mise en place de l’apprentissage.</p>
+      <p>Nous restons à votre disposition pour toute question.</p>
+    """
+    _send_html_mail(to_email, subject, _mail_wrapper(title, body))
+
+
+def send_relance_entreprise_convention(to_email, prenom, nom):
+    subject = "⏰ Relance — Convention de formation en attente de signature"
+    title = '<h3 style="margin:0; font-size:18px; color:#000;">⏰ Relance entreprise</h3>'
+    body = f"""
+      <p>Bonjour,</p>
+      <p>Nous vous rappelons que la <b>convention de formation</b> relative à l’apprenti(e) <b>{prenom} {nom}</b> 
+      n’a pas encore été signée.</p>
+      <p>Il est important de finaliser cette étape rapidement pour garantir la bonne transmission du dossier à l’OPCO.</p>
+      <p>Nous restons disponibles si vous rencontrez la moindre difficulté.</p>
+    """
+    _send_html_mail(to_email, subject, _mail_wrapper(title, body))
+
+
+def send_relance_entreprise_documents(to_email, prenom, nom):
+    subject = "⏰ Relance — Documents de formation en attente de signature"
+    title = '<h3 style="margin:0; font-size:18px; color:#000;">⏰ Relance entreprise</h3>'
+    body = f"""
+      <p>Bonjour,</p>
+      <p>Nous vous rappelons que les documents relatifs à <b>{prenom} {nom}</b> (contrat d’apprentissage et convention de formation) 
+      n’ont pas encore été signés.</p>
+      <p>⚠️ Ces documents sont indispensables pour la constitution complète du dossier et sa transmission à l’OPCO.</p>
+      <p>Merci de bien vouloir procéder à la signature dans les plus brefs délais.</p>
+    """
+    _send_html_mail(to_email, subject, _mail_wrapper(title, body))
+
+def send_relance_apprenti_contrat(to_email, prenom, nom):
+    subject = "⏰ Relance — Contrat non signé"
+    title = '<h3 style="margin:0; font-size:18px; color:#000;">⏰ Relance apprenti</h3>'
+    body = f"""
+      <p>Bonjour <b>{prenom} {nom}</b>,</p>
+      <p>Nous constatons que votre <b>contrat d’apprentissage</b> n’a pas encore été signé.</p>
+      <p>Merci de procéder à la signature électronique dès que possible ✅</p>
+      <p>Si vous rencontrez une difficulté technique, vous pouvez contacter notre assistance.</p>
+    """
+    _send_html_mail(to_email, subject, _mail_wrapper(title, body))
+
+
+
 # -----------------------
 # Auth & Admin views
 # -----------------------
@@ -397,3 +449,44 @@ def edit(id):
         return redirect(url_for("admin"))
 
     return render_template("edit.html", row=contract, statuses=STATUSES)
+
+@app.route("/relance/<id>/<cible>/<motif>", methods=["POST"])
+@require_admin
+def relance(id, cible, motif):
+    data = _load_data()
+    for r in data:
+        if r["id"] == id:
+            try:
+                # -------------------
+                # Relance Apprenti
+                # -------------------
+                if cible == "apprenti" and r.get("mail"):
+                    if motif == "contrat_non_signe":
+                        send_relance_apprenti_contrat(r["mail"], r["prenom"], r["nom"])
+                        add_log(r, "Relance apprenti : Contrat non signé")
+
+                # -------------------
+                # Relance Entreprise
+                # -------------------
+                elif cible == "entreprise" and r.get("resp_mail"):
+                    if motif == "contrat_non_signe":
+                        send_relance_entreprise_contrat(r["resp_mail"], r["prenom"], r["nom"])
+                        add_log(r, "Relance entreprise : Contrat non signé")
+                    elif motif == "convention_non_signee":
+                        send_relance_entreprise_convention(r["resp_mail"], r["prenom"], r["nom"])
+                        add_log(r, "Relance entreprise : Convention non signée")
+                    elif motif == "documents_non_signes":
+                        send_relance_entreprise_documents(r["resp_mail"], r["prenom"], r["nom"])
+                        add_log(r, "Relance entreprise : Documents non signés")
+
+                # -------------------
+                # Sauvegarde
+                # -------------------
+                _save_data(data)
+
+            except Exception as e:
+                print("Erreur envoi relance:", e)
+            break
+
+    return redirect(url_for("admin"))
+
