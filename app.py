@@ -288,7 +288,7 @@ def send_relance_entreprise_documents(to_email, prenom, nom):
       <p>Nous vous rappelons que les documents relatifs à <b>{prenom} {nom}</b> (contrat d’apprentissage et convention de formation) 
       n’ont pas encore été signés.</p>
       <p>⚠️ Ces documents sont indispensables pour la constitution complète du dossier et sa transmission à l’OPCO.</p>
-      <p>Merci de bien vouloir procéder à la signature dans les plus brefs délais.</p>
+      <p>Nous vous remercions de bien vouloir procéder à la signature électronique dans les plus brefs délais.</p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
@@ -298,7 +298,7 @@ def send_relance_apprenti_contrat(to_email, prenom, nom):
     body = f"""
       <p>Bonjour <b>{prenom} {nom}</b>,</p>
       <p>Nous constatons que votre <b>contrat d’apprentissage</b> n’a pas encore été signé.</p>
-      <p>Merci de procéder à la signature électronique dès que possible ✅</p>
+      <p>Nous vous remercions de bien vouloir procéder à la signature électronique dès que possible ✅</p>
       <p>Si vous rencontrez une difficulté technique, vous pouvez contacter notre assistance.</p>
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
