@@ -54,7 +54,7 @@
           {% if r.logs %}
             <button class="admin-btn small" onclick="openLogs('{{ r.id }}')">📜 Voir logs</button>
 
-            <!-- Fenêtre modale -->
+            <!-- Fenêtre modale logs -->
             <div id="modal-{{ r.id }}" class="modal">
               <div class="modal-content">
                 <span class="close" onclick="closeLogs('{{ r.id }}')">&times;</span>
@@ -76,6 +76,33 @@
             <button type="submit" class="admin-btn small danger">🗑️ Supprimer</button>
           </form>
           <a class="admin-btn small" href="{{ url_for('fiche', id=r.id) }}">🖨️ Fiche</a>
+
+          <!-- Bouton relance -->
+          <button type="button" class="admin-btn small" onclick="openRelance('{{ r.id }}')">📧 Relance</button>
+
+          <!-- Modal relance -->
+          <div id="relance-{{ r.id }}" class="modal">
+            <div class="modal-content">
+              <span class="close" onclick="closeRelance('{{ r.id }}')">&times;</span>
+              <h3>Choisir relance</h3>
+
+              <h4>Apprenti</h4>
+              <form method="post" action="/relance/{{r.id}}/apprenti/contrat_non_signe">
+                <button class="admin-btn small">Contrat non signé</button>
+              </form>
+
+              <h4>Entreprise</h4>
+              <form method="post" action="/relance/{{r.id}}/entreprise/contrat_non_signe">
+                <button class="admin-btn small">Contrat non signé</button>
+              </form>
+              <form method="post" action="/relance/{{r.id}}/entreprise/convention_non_signee">
+                <button class="admin-btn small">Convention non signée</button>
+              </form>
+              <form method="post" action="/relance/{{r.id}}/entreprise/documents_non_signes">
+                <button class="admin-btn small">Documents non signés</button>
+              </form>
+            </div>
+          </div>
         </td>
       </tr>
       {% endfor %}
@@ -101,6 +128,12 @@ function openLogs(id) {
 }
 function closeLogs(id) {
   document.getElementById("modal-" + id).style.display = "none";
+}
+function openRelance(id) {
+  document.getElementById("relance-" + id).style.display = "block";
+}
+function closeRelance(id) {
+  document.getElementById("relance-" + id).style.display = "none";
 }
 window.onclick = function(event) {
   document.querySelectorAll(".modal").forEach(function(modal){
