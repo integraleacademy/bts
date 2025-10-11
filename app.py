@@ -490,3 +490,43 @@ def relance(id, cible, motif):
 
     return redirect(url_for("admin"))
 
+# -----------------------
+# Route publique pour exposer contracts.json (avec CORS)
+# -----------------------
+@app.route("/data.json")
+def data_json():
+    """Renvoie les statistiques des contrats pour la plateforme principale"""
+    try:
+        if not os.path.exists(DATA_FILE):
+            result = {
+                "contracts": [],
+                "summary": {"a_traiter": 0, "signature_en_cours": 0, "saisi_entreprise": 0}
+            }
+        else:
+            with open(DATA_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if not isinstance(data, list):
+                data = []
+
+            result = {
+                "contracts": data,
+                "summary": {
+                    "a_traiter": sum(1 for d in data if d.get("status") == "A traiter"),
+                    "signature_en_cours": sum(1 for d in data if d.get("status") == "Signature en cours"),
+                    "saisi_entreprise": sum(1 for d in data if d.get("status") == "Saisi par l'entreprise")
+                }
+            }
+
+        headers = {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*"
+        }
+        return json.dumps(result, ensure_ascii=False), 200, headers
+
+    except Exception as e:
+        print("Erreur lecture contracts.json:", e)
+        return json.dumps({"error": str(e)}), 500, {
+            "Access-Control-Allow-Origin": "*"
+        }
+
+
