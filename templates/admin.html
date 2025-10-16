@@ -80,34 +80,36 @@
           <!-- Bouton relance -->
           <button type="button" class="admin-btn small" onclick="openRelance('{{ r.id }}')">📧 Relance</button>
 
-          <!-- Modal relance -->
-          <div id="relance-{{ r.id }}" class="modal">
-            <div class="modal-content">
-              <span class="close" onclick="closeRelance('{{ r.id }}')">&times;</span>
-              <h3>Choisir relance</h3>
+ <!-- Modal relance -->
+<div id="relance-{{ r.id }}" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeRelance('{{ r.id }}')">&times;</span>
+    <h3>Choisir relance</h3>
 
-              <h4>Apprenti</h4>
-              <form method="post" action="/relance/{{r.id}}/apprenti/contrat_non_signe">
-                <button class="admin-btn small">Contrat non signé</button>
-              </form>
+    <h4>Apprenti</h4>
+    <form method="post" action="/relance/{{r.id}}/apprenti/contrat_non_signe">
+      <button class="admin-btn small">Contrat non signé</button>
+    </form>
+    <form method="post" action="/relance/{{r.id}}/apprenti/infos_non_completees">
+      <button class="admin-btn small">Entreprise n’a pas complété</button>
+    </form>
 
-              <h4>Entreprise</h4>
-              <form method="post" action="/relance/{{r.id}}/entreprise/contrat_non_signe">
-                <button class="admin-btn small">Contrat non signé</button>
-              </form>
-              <form method="post" action="/relance/{{r.id}}/entreprise/convention_non_signee">
-                <button class="admin-btn small">Convention non signée</button>
-              </form>
-          <form method="post" action="/relance/{{r.id}}/entreprise/documents_non_signes">
-  <button class="admin-btn small">Documents non signés</button>
-</form>
-<form method="post" action="/relance/{{r.id}}/entreprise/infos_non_completees">
-  <button class="admin-btn small">Infos non complétées</button>
-</form>
+    <h4>Entreprise</h4>
+    <form method="post" action="/relance/{{r.id}}/entreprise/contrat_non_signe">
+      <button class="admin-btn small">Contrat non signé</button>
+    </form>
+    <form method="post" action="/relance/{{r.id}}/entreprise/convention_non_signee">
+      <button class="admin-btn small">Convention non signée</button>
+    </form>
+    <form method="post" action="/relance/{{r.id}}/entreprise/documents_non_signes">
+      <button class="admin-btn small">Documents non signés</button>
+    </form>
+    <form method="post" action="/relance/{{r.id}}/entreprise/infos_non_completees">
+      <button class="admin-btn small">Infos non complétées</button>
+    </form>
+  </div>
+</div>
 
-
-          
-            </div>
           </div>
         </td>
       </tr>
