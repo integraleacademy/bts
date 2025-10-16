@@ -317,7 +317,7 @@ def send_relance_apprenti_contrat(to_email, prenom, nom):
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
 def send_relance_apprenti_infos_non_completees(to_email, prenom, nom, entreprise):
-    subject = "⏰ Relance — Contrat en attente de complétion par l’entreprise"
+    subject = "⏰ Relance — Contrat à compléter entreprise"
     title = '<h3 style="margin:0; font-size:18px; color:#000;">⏰ Relance apprenti</h3>'
     body = f"""
       <p>Bonjour <b>{prenom} {nom}</b>,</p>
