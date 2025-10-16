@@ -316,6 +316,18 @@ def send_relance_apprenti_contrat(to_email, prenom, nom):
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
+def send_relance_apprenti_infos_non_completees(to_email, prenom, nom, entreprise):
+    subject = "⏰ Relance — Contrat en attente de complétion par l’entreprise"
+    title = '<h3 style="margin:0; font-size:18px; color:#000;">⏰ Relance apprenti</h3>'
+    body = f"""
+      <p>Bonjour <b>{prenom} {nom}</b>,</p>
+      <p>Nous vous informons que votre entreprise <b>{entreprise}</b> n’a pas encore complété le <b>contrat d’apprentissage</b> que nous lui avons transmis.</p>
+      <p>Nous vous invitons à <b>prendre contact avec votre employeur</b> afin de lui rappeler de renseigner les informations manquantes pour finaliser votre dossier.</p>
+      <p>Merci pour votre réactivité 🙏</p>
+    """
+    _send_html_mail(to_email, subject, _mail_wrapper(title, body))
+
+
 
 
 # -----------------------
@@ -478,6 +490,12 @@ def relance(id, cible, motif):
                         send_relance_apprenti_contrat(r["mail"], r["prenom"], r["nom"])
                         add_log(r, "Relance apprenti : Contrat non signé")
 
+                    elif motif == "infos_non_completees":
+                        send_relance_apprenti_infos_non_completees(
+                            r["mail"], r["prenom"], r["nom"], r.get("entreprise", "")
+                        )
+                        add_log(r, "Relance apprenti : Entreprise n’a pas complété le contrat")
+
                 # -------------------
                 # Relance Entreprise
                 # -------------------
@@ -495,7 +513,6 @@ def relance(id, cible, motif):
                         send_relance_entreprise_sans_retour(r["resp_mail"], r["prenom"], r["nom"])
                         add_log(r, "Relance entreprise : Contrat envoyé sans retour")
 
-
                 # -------------------
                 # Sauvegarde
                 # -------------------
@@ -506,6 +523,7 @@ def relance(id, cible, motif):
             break
 
     return redirect(url_for("admin"))
+
 
 # -----------------------
 # Route publique pour exposer contracts.json (avec CORS)
