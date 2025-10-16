@@ -292,6 +292,19 @@ def send_relance_entreprise_documents(to_email, prenom, nom):
     """
     _send_html_mail(to_email, subject, _mail_wrapper(title, body))
 
+def send_relance_entreprise_sans_retour(to_email, prenom, nom):
+    subject = "⏰ Relance — Contrat d'apprentissage non complété"
+    title = '<h3 style="margin:0; font-size:18px; color:#000;">⏰ Relance entreprise</h3>'
+    body = f"""
+      <p>Bonjour,</p>
+      <p>Nous vous informons que nous vous avons précédemment transmis par mail le <b>contrat d’apprentissage</b> de <b>{prenom} {nom}</b> à compléter.</p>
+      <p>À ce jour, nous n’avons pas encore reçu les informations nécessaires au traitement du dossier.</p>
+      <p>Nous vous remercions de bien vouloir compléter le contrat dans les meilleurs délais afin que nous puissions finaliser la signature électronique et la convention de formation.</p>
+      <p>Nous restons à votre disposition pour toute question.</p>
+    """
+    _send_html_mail(to_email, subject, _mail_wrapper(title, body))
+
+
 def send_relance_apprenti_contrat(to_email, prenom, nom):
     subject = "⏰ Relance — Contrat non signé"
     title = '<h3 style="margin:0; font-size:18px; color:#000;">⏰ Relance apprenti</h3>'
@@ -478,6 +491,10 @@ def relance(id, cible, motif):
                     elif motif == "documents_non_signes":
                         send_relance_entreprise_documents(r["resp_mail"], r["prenom"], r["nom"])
                         add_log(r, "Relance entreprise : Documents non signés")
+                    elif motif == "infos_non_completees":
+                        send_relance_entreprise_sans_retour(r["resp_mail"], r["prenom"], r["nom"])
+                        add_log(r, "Relance entreprise : Contrat envoyé sans retour")
+
 
                 # -------------------
                 # Sauvegarde
