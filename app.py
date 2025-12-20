@@ -99,6 +99,18 @@ def index():
 @app.route("/submit", methods=["POST"])
 def submit():
     f = request.form
+
+    # Anti-doublon : vérifie le token
+    token_form = request.form.get("form_token")
+    token_session = session.get("form_token")
+
+    if not token_form or token_form != token_session:
+        return "Formulaire déjà soumis ou invalide.", 400
+
+    # Invalide le token après utilisation
+    session["form_token"] = None
+
+
     item = {
         "id": str(uuid.uuid4()),
         "created_at": datetime.utcnow().isoformat(),
