@@ -2,6 +2,8 @@ import os, json, re, uuid, threading
 from datetime import datetime
 import pytz   # heure française
 from flask import Flask, render_template, request, redirect, url_for, flash, session, abort
+import secrets
+
 
 # Envoi des mails
 import smtplib
@@ -86,7 +88,13 @@ def status_color(status):
 # -----------------------
 @app.route("/")
 def index():
-    return render_template("index.html")
+    # Génère un token unique pour ce formulaire
+    token = secrets.token_urlsafe(32)
+    # On le stocke en session pour pouvoir le vérifier au POST
+    session["form_token"] = token
+    # On l’envoie au template
+    return render_template("index.html", form_token=token)
+
 
 @app.route("/submit", methods=["POST"])
 def submit():
