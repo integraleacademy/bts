@@ -1,5 +1,5 @@
 import os, json, re, uuid, threading
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz   # heure française
 from flask import Flask, render_template, request, redirect, url_for, flash, session, abort
 import secrets
@@ -25,6 +25,8 @@ EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
+app.config["SESSION_PERMANENT"] = True
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=30)
 _SAVE_LOCK = threading.Lock()
 
 STATUSES = [
@@ -357,6 +359,7 @@ def send_relance_apprenti_infos_non_completees(to_email, prenom, nom, entreprise
 def login():
     if request.method == "POST":
         if request.form.get("password") == ADMIN_PASSWORD:
+            session.permanent = True
             session["is_admin"] = True
             return redirect(url_for("admin"))
         flash("Mot de passe incorrect.", "error")
@@ -583,5 +586,4 @@ def data_json():
         return json.dumps({"error": str(e)}), 500, {
             "Access-Control-Allow-Origin": "*"
         }
-
 
