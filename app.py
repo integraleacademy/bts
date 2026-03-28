@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 import pytz   # heure française
 from flask import Flask, render_template, request, redirect, url_for, flash, session, abort
 import secrets
+import csv
+import io
 
 
 # Envoi des mails
@@ -57,6 +59,54 @@ def _save_data(data):
 
 def _digits_only(s):
     return re.sub(r"\D", "", s or "")
+
+def _normalize_parcoursup_phone(raw):
+    """Normalise un téléphone vers le format attendu: 0XXXXXXXXX."""
+    digits = _digits_only(raw)
+    if not digits:
+        return "", "Téléphone manquant"
+
+    # Gère 0033XXXXXXXXX ou 33XXXXXXXXX
+    if digits.startswith("0033"):
+        digits = digits[4:]
+    elif digits.startswith("33"):
+        digits = digits[2:]
+
+    # Si 9 chiffres (sans 0 initial), on le rajoute.
+    if len(digits) == 9:
+        digits = "0" + digits
+
+    if len(digits) == 10 and digits.startswith("0"):
+        return digits, ""
+    return "", f"Téléphone invalide ({raw})"
+
+def _normalize_parcoursup_email(raw):
+    email = (raw or "").strip().lower()
+    if not email:
+        return "", "E-mail manquant"
+    if re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
+        return email, ""
+    return "", f"E-mail invalide ({raw})"
+
+def _parse_parcoursup_text(raw_text):
+    """
+    Parse un collage TSV/CSV:
+    - supporte les sauts de ligne littéraux '\\n'
+    - auto-détection du séparateur tab/;/,
+    """
+    text = (raw_text or "").replace("\r\n", "\n").strip()
+    if "\\n" in text:
+        text = text.replace("\\n", "\n")
+    lines = [ln for ln in text.split("\n") if ln.strip()]
+    if not lines:
+        return []
+
+    first = lines[0]
+    delimiter = "\t" if "\t" in first else (";" if ";" in first else ",")
+
+    reader = csv.reader(io.StringIO("\n".join(lines)), delimiter=delimiter)
+    rows = [row for row in reader if any((c or "").strip() for c in row)]
+    return rows
 
 def require_admin(view):
     def wrapper(*a, **kw):
@@ -587,3 +637,59 @@ def data_json():
             "Access-Control-Allow-Origin": "*"
         }
 
+@app.route("/admin/parcoursup-import", methods=["GET", "POST"])
+@require_admin
+def parcoursup_import():
+    raw_input = ""
+    output_tsv = ""
+    errors = []
+    stats = {"total": 0, "ok": 0, "ko": 0}
+
+    if request.method == "POST":
+        raw_input = request.form.get("raw_input", "")
+        rows = _parse_parcoursup_text(raw_input)
+
+        if not rows:
+            errors.append("Aucune donnée détectée.")
+        else:
+            header = [c.strip() for c in rows[0]]
+            wanted = ["Nom", "Prenom", "Telephone", "Mail", "Formation", "Mode"]
+            # Si le header est mauvais/absent, on force le schéma attendu
+            has_header = [h.lower() for h in header[:6]] == [w.lower() for w in wanted]
+            data_rows = rows[1:] if has_header else rows
+
+            cleaned = [wanted]
+            for idx, row in enumerate(data_rows, start=2 if has_header else 1):
+                row = row + [""] * (6 - len(row))
+                nom, prenom, tel, mail, formation, mode = [c.strip() for c in row[:6]]
+                line_errors = []
+
+                tel_norm, tel_err = _normalize_parcoursup_phone(tel)
+                mail_norm, mail_err = _normalize_parcoursup_email(mail)
+
+                if tel_err:
+                    line_errors.append(f"Ligne {idx} : {tel_err}")
+                if mail_err:
+                    line_errors.append(f"Ligne {idx} : {mail_err}")
+
+                if line_errors:
+                    errors.extend(line_errors)
+                    stats["ko"] += 1
+                else:
+                    stats["ok"] += 1
+
+                cleaned.append([nom, prenom, tel_norm, mail_norm, formation, mode.lower()])
+
+            stats["total"] = len(data_rows)
+            out = io.StringIO()
+            writer = csv.writer(out, delimiter="\t", lineterminator="\n")
+            writer.writerows(cleaned)
+            output_tsv = out.getvalue()
+
+    return render_template(
+        "parcoursup_import.html",
+        raw_input=raw_input,
+        output_tsv=output_tsv,
+        errors=errors,
+        stats=stats
+    )

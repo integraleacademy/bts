@@ -3,6 +3,10 @@
 <h2>Administration</h2>
 
 <div class="card">
+  <a class="admin-btn" href="{{ url_for('parcoursup_import') }}">🧹 Nettoyer un import Parcoursup</a>
+</div>
+
+<div class="card">
   <form method="post" action="/admin/add" class="add-form">
     <input name="nom" placeholder="Nom" required>
     <input name="prenom" placeholder="Prénom" required>
