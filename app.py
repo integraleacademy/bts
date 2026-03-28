@@ -426,6 +426,12 @@ def admin():
     data = _load_data()
     return render_template("admin.html", rows=data, statuses=STATUSES)
 
+@app.route("/gestion-parcoursup")
+@require_admin
+def gestion_parcoursup():
+    """Alias explicite utilisé par l'équipe pour accéder à la gestion Parcoursup."""
+    return redirect(url_for("admin"))
+
 @app.route("/admin/add", methods=["POST"])
 @require_admin
 def admin_add():
