@@ -154,14 +154,6 @@
             </form>
           </div>
 
-          <form method="post" action="/update_comment/{{r.id}}" class="inline-form comment-form">
-            <label>
-              <span class="info-label">Commentaire</span>
-              <input type="text" name="commentaire" value="{{ r.commentaire or '' }}" placeholder="Ajouter un commentaire">
-            </label>
-            <button type="submit" class="admin-btn small admin-btn-secondary">Enregistrer</button>
-          </form>
-
           <div class="card-actions">
             <a class="admin-btn small admin-btn-secondary" href="{{ url_for('edit', id=r.id) }}">Modifier</a>
             <a class="admin-btn small admin-btn-ghost" href="{{ url_for('fiche', id=r.id) }}">Fiche</a>
@@ -171,6 +163,13 @@
             <button type="button" class="admin-btn small" onclick="openRelance('{{ r.id }}')">Relance</button>
             <form method="post" action="/delete/{{r.id}}" class="inline-form">
               <button type="submit" class="admin-btn small danger">Supprimer</button>
+            </form>
+            <form method="post" action="/update_comment/{{r.id}}" class="inline-form comment-form action-comment-form">
+              <label>
+                <span class="info-label">Commentaire</span>
+                <input type="text" name="commentaire" value="{{ r.commentaire or '' }}" placeholder="Ajouter un commentaire">
+              </label>
+              <button type="submit" class="admin-btn small admin-btn-secondary">Enregistrer</button>
             </form>
           </div>
 
@@ -302,7 +301,7 @@ main { max-width: none; margin: 0; padding: 0; }
 .admin-count { background: #f1f5f9; color: #475569; border-radius: 999px; padding: 9px 13px; font-weight: 900; white-space: nowrap; }
 
 .candidate-list { display: grid; gap: 14px; }
-.candidate-card { display: grid; grid-template-columns: minmax(210px, 1fr) minmax(280px, 1.25fr) minmax(230px, .95fr) minmax(280px, 1.1fr); gap: 16px; align-items: center; padding: 16px; overflow: hidden; }
+.candidate-card { display: grid; grid-template-columns: minmax(210px, 1fr) minmax(320px, 1.35fr) minmax(260px, .9fr); gap: 16px; align-items: center; padding: 16px; overflow: hidden; }
 .candidate-main { display: flex; gap: 12px; align-items: center; min-width: 0; }
 .avatar { width: 46px; height: 46px; flex: 0 0 46px; border-radius: 16px; background: #0f172a; color: var(--ia-gold); display: grid; place-items: center; font-weight: 950; text-transform: uppercase; }
 .candidate-identity { min-width: 0; }
@@ -317,7 +316,8 @@ main { max-width: none; margin: 0; padding: 0; }
 .status-badge { width: max-content; max-width: 100%; color: #111; border: 1px solid rgba(17,24,39,.08); box-shadow: inset 0 0 0 999px rgba(255,255,255,.25); font-weight: 950; }
 .status-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
 .comment-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: end; }
-.card-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 7px; justify-content: flex-start; align-items: center; border-top: 1px solid var(--ia-line); padding-top: 14px; }
+.card-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; align-items: end; border-top: 1px solid var(--ia-line); padding-top: 14px; }
+.action-comment-form { flex: 1 1 420px; max-width: 680px; margin-left: 8px; }
 
 input, select { width: 100%; border: 1px solid var(--ia-line); border-radius: 14px; padding: 11px 12px; background: #fff; color: var(--ia-ink); outline: none; box-sizing: border-box; font: inherit; }
 input:focus, select:focus { border-color: var(--ia-gold); box-shadow: 0 0 0 4px rgba(244,196,90,.22); }
@@ -360,7 +360,8 @@ input:focus, select:focus { border-color: var(--ia-gold); box-shadow: 0 0 0 4px 
   .kpi-grid, .admin-add-form, .candidate-card, .candidate-info-grid, .status-form, .comment-form { grid-template-columns: 1fr; }
   .admin-section-heading, .admin-topbar-actions { align-items: stretch; }
   .admin-topbar-actions .admin-btn, .admin-add-form .admin-btn, .card-actions .admin-btn, .card-actions form { width: 100%; }
-  .card-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .card-actions { display: grid; grid-template-columns: 1fr 1fr; align-items: stretch; }
+  .action-comment-form { grid-column: 1 / -1; max-width: none; margin-left: 0; }
   .card-actions form .admin-btn { width: 100%; }
   .candidate-identity small { max-width: 100%; }
 }
