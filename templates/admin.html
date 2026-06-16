@@ -1,140 +1,387 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Administration</h2>
+{% set ns = namespace(en_attente=0, complets=0, incomplets=0, formations=[]) %}
+{% for r in rows %}
+  {% set status_lower = (r.status or '')|lower %}
+  {% if 'traiter' in status_lower or 'attente' in status_lower %}
+    {% set ns.en_attente = ns.en_attente + 1 %}
+  {% endif %}
+  {% if 'complet' in status_lower or 'opco' in status_lower or 'sign' in status_lower or 'saisi' in status_lower %}
+    {% set ns.complets = ns.complets + 1 %}
+  {% else %}
+    {% set ns.incomplets = ns.incomplets + 1 %}
+  {% endif %}
+  {% if r.bts and r.bts not in ns.formations %}
+    {% set ns.formations = ns.formations + [r.bts] %}
+  {% endif %}
+{% endfor %}
 
-<div class="card">
-  <a class="admin-btn" href="{{ url_for('parcoursup_import') }}">🧹 Nettoyer un import Parcoursup</a>
-</div>
+<div class="admin-shell" id="adminShell">
+  <button class="sidebar-fab" type="button" onclick="toggleSidebar()" aria-label="Ouvrir ou fermer le menu">☰</button>
 
-<div class="card">
-  <form method="post" action="/admin/add" class="add-form">
-    <input name="nom" placeholder="Nom" required>
-    <input name="prenom" placeholder="Prénom" required>
-    <button class="admin-btn">➕ Ajouter</button>
-  </form>
-</div>
+  <aside class="admin-sidebar" id="adminSidebar" aria-label="Navigation administrateur">
+    <div class="admin-sidebar-head">
+      <div class="admin-brand">
+        <span class="admin-brand-mark">IA</span>
+        <div class="admin-brand-text">
+          <strong>Intégrale Academy</strong>
+          <small>Gestion CFA / BTS</small>
+        </div>
+      </div>
+      <button class="sidebar-close" type="button" onclick="toggleSidebar()" aria-label="Réduire ou refermer le menu">‹</button>
+    </div>
 
-<div class="card">
-  <table class="admin-table">
-    <thead>
-      <tr>
-        <th>Nom</th>
-        <th>Prénom</th>
-        <th>Email</th>
-        <th>Téléphone</th>
-        <th>Status</th>
-        <th>Commentaire</th>
-        <th>Logs</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in rows %}
-      <tr>
-        <td>{{ r.nom }}</td>
-        <td>{{ r.prenom }}</td>
-        <td>{{ r.mail or '-' }}</td>
-        <td>{{ r.tel or '-' }}</td>
-        <td>
-          <span class="badge" style="background: {{ r.status|status_color }};">
-            {{ r.status }}
-          </span>
-          <form method="post" action="/update/{{r.id}}" class="inline-form">
-            <select name="status">
-              {% for s in statuses %}
-                <option value="{{s}}" {% if s == r.status %}selected{% endif %}>{{s}}</option>
-              {% endfor %}
-            </select>
-            <button type="submit" class="admin-btn small">💾</button>
+    <nav class="admin-menu">
+      <a class="active" href="#dashboard" onclick="closeSidebarOnMobile()"><span>🏠</span>Tableau de bord</a>
+      <a href="#candidats" onclick="closeSidebarOnMobile()"><span>👥</span>Candidats</a>
+      <a href="#add-candidat" onclick="closeSidebarOnMobile()"><span>➕</span>Ajouter</a>
+      <a href="{{ url_for('parcoursup_import') }}"><span>🧹</span>Import Parcoursup</a>
+      <a href="{{ url_for('logout') }}"><span>↪</span>Déconnexion</a>
+    </nav>
+
+    <div class="admin-sidebar-card">
+      <span>{{ rows|length }} dossier(s)</span>
+      <p>{{ ns.formations|length }} formation(s) BTS active(s), {{ ns.en_attente }} dossier(s) à traiter.</p>
+      <a class="admin-btn admin-btn-light" href="{{ url_for('parcoursup_import') }}">Nettoyer un import</a>
+    </div>
+  </aside>
+
+  <section class="admin-main" id="dashboard">
+    <header class="admin-topbar">
+      <button class="admin-icon-btn" type="button" onclick="toggleSidebar()" aria-label="Ouvrir ou réduire le menu">☰</button>
+      <div class="admin-title-block">
+        <p class="admin-eyebrow">Espace administrateur</p>
+        <h2>Tableau de bord administrateur</h2>
+        <p class="admin-subtitle">Une vue claire pour suivre les candidats, statuts, commentaires, fiches et relances sans modifier les routes Flask existantes.</p>
+      </div>
+      <div class="admin-topbar-actions">
+        <a class="admin-btn admin-btn-secondary" href="{{ url_for('parcoursup_import') }}">Import Parcoursup</a>
+        <a class="admin-btn" href="#add-candidat">Ajouter un candidat</a>
+      </div>
+    </header>
+
+    <div class="kpi-grid" aria-label="Indicateurs administrateur">
+      <article class="kpi-card primary">
+        <span class="kpi-label">Candidats / apprenants</span>
+        <strong>{{ rows|length }}</strong>
+        <small>Total dossiers suivis</small>
+      </article>
+      <article class="kpi-card">
+        <span class="kpi-label">En attente</span>
+        <strong>{{ ns.en_attente }}</strong>
+        <small>Dossiers à traiter</small>
+      </article>
+      <article class="kpi-card">
+        <span class="kpi-label">Complets</span>
+        <strong>{{ ns.complets }}</strong>
+        <small>OPCO / signature / saisi</small>
+      </article>
+      <article class="kpi-card">
+        <span class="kpi-label">Incomplets</span>
+        <strong>{{ ns.incomplets }}</strong>
+        <small>Informations à finaliser</small>
+      </article>
+      <article class="kpi-card">
+        <span class="kpi-label">BTS actifs</span>
+        <strong>{{ ns.formations|length }}</strong>
+        <small>Formations renseignées</small>
+      </article>
+    </div>
+
+    <section class="admin-card add-panel" id="add-candidat">
+      <div>
+        <p class="admin-eyebrow">Création rapide</p>
+        <h3>Ajouter un candidat</h3>
+        <p>Créez un dossier minimal puis complétez-le depuis l’action Modifier.</p>
+      </div>
+      <form method="post" action="/admin/add" class="add-form admin-add-form">
+        <label>
+          <span>Nom</span>
+          <input name="nom" placeholder="Ex. Dupont" required>
+        </label>
+        <label>
+          <span>Prénom</span>
+          <input name="prenom" placeholder="Ex. Marie" required>
+        </label>
+        <button class="admin-btn" type="submit">Ajouter</button>
+      </form>
+    </section>
+
+    <section class="admin-card candidates-panel" id="candidats">
+      <div class="admin-section-heading">
+        <div>
+          <p class="admin-eyebrow">Suivi opérationnel</p>
+          <h3>Candidats et contrats</h3>
+        </div>
+        <span class="admin-count">{{ rows|length }} dossier(s)</span>
+      </div>
+
+      <div class="candidate-list">
+        {% for r in rows %}
+        <article class="candidate-card">
+          <div class="candidate-main">
+            <span class="avatar">{{ (r.prenom or '?')[:1] }}{{ (r.nom or '')[:1] }}</span>
+            <div class="candidate-identity">
+              <strong>{{ r.prenom }} {{ r.nom }}</strong>
+              <small title="{{ r.id }}">ID {{ r.id }}</small>
+            </div>
+          </div>
+
+          <div class="candidate-info-grid">
+            <div class="info-block">
+              <span class="info-label">Contact</span>
+              <strong>{{ r.mail or '-' }}</strong>
+              <small>{{ r.tel or '-' }}</small>
+            </div>
+            <div class="info-block">
+              <span class="info-label">Formation</span>
+              <strong>{{ r.bts or 'BTS à préciser' }}</strong>
+              <small>{{ r.entreprise or 'Entreprise à préciser' }}</small>
+            </div>
+          </div>
+
+          <div class="status-block">
+            <span class="badge status-badge" style="background: {{ r.status|status_color }};">
+              {{ r.status }}
+            </span>
+            <form method="post" action="/update/{{r.id}}" class="inline-form status-form">
+              <select name="status" aria-label="Changer le statut de {{ r.prenom }} {{ r.nom }}">
+                {% for s in statuses %}
+                  <option value="{{s}}" {% if s == r.status %}selected{% endif %}>{{s}}</option>
+                {% endfor %}
+              </select>
+              <button type="submit" class="admin-btn small">Valider</button>
+            </form>
+          </div>
+
+          <form method="post" action="/update_comment/{{r.id}}" class="inline-form comment-form">
+            <label>
+              <span class="info-label">Commentaire</span>
+              <input type="text" name="commentaire" value="{{ r.commentaire or '' }}" placeholder="Ajouter un commentaire">
+            </label>
+            <button type="submit" class="admin-btn small admin-btn-secondary">Enregistrer</button>
           </form>
-        </td>
-        <td>
-          <form method="post" action="/update_comment/{{r.id}}" class="inline-form">
-            <input type="text" name="commentaire" value="{{ r.commentaire or '' }}" placeholder="Ajouter un commentaire">
-            <button type="submit" class="admin-btn small">💾</button>
-          </form>
-        </td>
-        <td>
+
+          <div class="card-actions">
+            <a class="admin-btn small admin-btn-secondary" href="{{ url_for('edit', id=r.id) }}">Modifier</a>
+            <a class="admin-btn small admin-btn-ghost" href="{{ url_for('fiche', id=r.id) }}">Fiche</a>
+            {% if r.logs %}
+              <button class="admin-btn small admin-btn-ghost" onclick="openLogs('{{ r.id }}')" type="button">Logs</button>
+            {% endif %}
+            <button type="button" class="admin-btn small" onclick="openRelance('{{ r.id }}')">Relance</button>
+            <form method="post" action="/delete/{{r.id}}" class="inline-form">
+              <button type="submit" class="admin-btn small danger">Supprimer</button>
+            </form>
+          </div>
+
           {% if r.logs %}
-            <button class="admin-btn small" onclick="openLogs('{{ r.id }}')">📜 Voir logs</button>
+          <div id="modal-{{ r.id }}" class="modal">
+            <div class="modal-content">
+              <button class="modal-close" type="button" onclick="closeLogs('{{ r.id }}')">×</button>
+              <h3>Historique des mails</h3>
+              <ul>
+                {% for log in r.logs %}
+                  <li>{{ log }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          {% endif %}
 
-            <!-- Fenêtre modale logs -->
-            <div id="modal-{{ r.id }}" class="modal">
-              <div class="modal-content">
-                <span class="close" onclick="closeLogs('{{ r.id }}')">&times;</span>
-                <h3>Historique des mails</h3>
-                <ul>
-                  {% for log in r.logs %}
-                    <li>{{ log }}</li>
-                  {% endfor %}
-                </ul>
+          <div id="relance-{{ r.id }}" class="modal">
+            <div class="modal-content relance-modal">
+              <button class="modal-close" type="button" onclick="closeRelance('{{ r.id }}')">×</button>
+              <h3>Choisir une relance</h3>
+
+              <h4>Apprenti</h4>
+              <div class="modal-actions">
+                <form method="post" action="/relance/{{r.id}}/apprenti/contrat_non_signe">
+                  <button class="admin-btn small">Contrat non signé</button>
+                </form>
+                <form method="post" action="/relance/{{r.id}}/apprenti/infos_non_completees">
+                  <button class="admin-btn small admin-btn-secondary">Entreprise n’a pas complété</button>
+                </form>
+              </div>
+
+              <h4>Entreprise</h4>
+              <div class="modal-actions">
+                <form method="post" action="/relance/{{r.id}}/entreprise/contrat_non_signe">
+                  <button class="admin-btn small">Contrat non signé</button>
+                </form>
+                <form method="post" action="/relance/{{r.id}}/entreprise/convention_non_signee">
+                  <button class="admin-btn small admin-btn-secondary">Convention non signée</button>
+                </form>
+                <form method="post" action="/relance/{{r.id}}/entreprise/documents_non_signes">
+                  <button class="admin-btn small admin-btn-secondary">Documents non signés</button>
+                </form>
+                <form method="post" action="/relance/{{r.id}}/entreprise/infos_non_completees">
+                  <button class="admin-btn small admin-btn-secondary">Infos non complétées</button>
+                </form>
               </div>
             </div>
-          {% else %}
-            -
-          {% endif %}
-        </td>
-        <td>
-          <a class="admin-btn small" href="{{ url_for('edit', id=r.id) }}">✏️ Modifier</a>
-          <form method="post" action="/delete/{{r.id}}" class="inline-form">
-            <button type="submit" class="admin-btn small danger">🗑️ Supprimer</button>
-          </form>
-          <a class="admin-btn small" href="{{ url_for('fiche', id=r.id) }}">🖨️ Fiche</a>
-
-          <!-- Bouton relance -->
-          <button type="button" class="admin-btn small" onclick="openRelance('{{ r.id }}')">📧 Relance</button>
-
- <!-- Modal relance -->
-<div id="relance-{{ r.id }}" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeRelance('{{ r.id }}')">&times;</span>
-    <h3>Choisir relance</h3>
-
-    <h4>Apprenti</h4>
-    <form method="post" action="/relance/{{r.id}}/apprenti/contrat_non_signe">
-      <button class="admin-btn small">Contrat non signé</button>
-    </form>
-    <form method="post" action="/relance/{{r.id}}/apprenti/infos_non_completees">
-      <button class="admin-btn small">Entreprise n’a pas complété</button>
-    </form>
-
-    <h4>Entreprise</h4>
-    <form method="post" action="/relance/{{r.id}}/entreprise/contrat_non_signe">
-      <button class="admin-btn small">Contrat non signé</button>
-    </form>
-    <form method="post" action="/relance/{{r.id}}/entreprise/convention_non_signee">
-      <button class="admin-btn small">Convention non signée</button>
-    </form>
-    <form method="post" action="/relance/{{r.id}}/entreprise/documents_non_signes">
-      <button class="admin-btn small">Documents non signés</button>
-    </form>
-    <form method="post" action="/relance/{{r.id}}/entreprise/infos_non_completees">
-      <button class="admin-btn small">Infos non complétées</button>
-    </form>
-  </div>
-</div>
-
           </div>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+        </article>
+        {% else %}
+        <div class="empty-state">Aucun candidat pour le moment. Ajoutez un premier dossier pour commencer.</div>
+        {% endfor %}
+      </div>
+    </section>
+  </section>
 </div>
 
-<!-- Styles modale -->
 <style>
-.modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); }
-.modal-content {
-  background:#fff; margin:10% auto; padding:20px; border-radius:8px;
-  width:80%; max-width:500px; box-shadow:0 2px 10px rgba(0,0,0,0.3);
+:root {
+  --ia-gold: #F4C45A;
+  --ia-gold-dark: #d9a92d;
+  --ia-ink: #111827;
+  --ia-muted: #64748b;
+  --ia-line: #e7eaf0;
+  --ia-soft: #f8fafc;
+  --ia-bg: #f3f5f9;
+  --ia-card: #ffffff;
+  --ia-sidebar: #0f172a;
 }
+
+body { background: var(--ia-bg); color: var(--ia-ink); overflow-x: hidden; }
+body > header, body > footer { display: none; }
+main { max-width: none; margin: 0; padding: 0; }
+
+.admin-shell { min-height: 100vh; display: grid; grid-template-columns: 292px minmax(0, 1fr); background: radial-gradient(circle at top left, rgba(244,196,90,.15), transparent 32%), var(--ia-bg); transition: grid-template-columns .22s ease; }
+.admin-shell.sidebar-collapsed { grid-template-columns: 88px minmax(0, 1fr); }
+.admin-shell.sidebar-collapsed .admin-sidebar { padding-left: 14px; padding-right: 14px; align-items: center; }
+.admin-shell.sidebar-collapsed .admin-brand-text, .admin-shell.sidebar-collapsed .admin-sidebar-card { display: none; }
+.admin-shell.sidebar-collapsed .admin-menu a { font-size: 0; }
+.admin-shell.sidebar-collapsed .admin-menu a { justify-content: center; padding: 13px; width: 48px; box-sizing: border-box; }
+.admin-shell.sidebar-collapsed .admin-menu a span { font-size: 18px; }
+.admin-shell.sidebar-collapsed .admin-brand { justify-content: center; }
+.admin-shell.sidebar-collapsed .sidebar-close { transform: rotate(180deg); }
+.admin-sidebar { position: sticky; top: 0; height: 100vh; padding: 26px 20px; background: linear-gradient(180deg, #0f172a 0%, #111827 100%); color: #fff; display: flex; flex-direction: column; gap: 26px; box-sizing: border-box; z-index: 20; }
+.admin-sidebar-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.admin-brand { display: flex; gap: 12px; align-items: center; min-width: 0; }
+.admin-brand-mark { width: 52px; height: 52px; flex: 0 0 52px; border-radius: 16px; background: var(--ia-gold); color: #111; display: grid; place-items: center; font-weight: 950; font-size: 18px; box-shadow: 0 18px 30px rgba(244,196,90,.22); }
+.admin-brand-text strong, .admin-brand-text small { display: block; }
+.admin-brand-text strong { font-size: 18px; line-height: 1.15; }
+.admin-brand-text small { color: #cbd5e1; margin-top: 4px; }
+.sidebar-close, .sidebar-fab, .admin-icon-btn { border: 0; cursor: pointer; font-weight: 900; }
+.sidebar-close { display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: rgba(255,255,255,.1); color: #fff; font-size: 22px; }
+.sidebar-fab { display: none; position: fixed; left: 16px; bottom: 16px; z-index: 60; width: 48px; height: 48px; border-radius: 999px; background: var(--ia-gold); color: #111; box-shadow: 0 18px 45px rgba(15,23,42,.22); }
+.admin-icon-btn { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: #fff; border: 1px solid var(--ia-line); color: var(--ia-ink); }
+.admin-menu { display: grid; gap: 8px; }
+.admin-menu a { display: flex; align-items: center; gap: 10px; color: #cbd5e1; text-decoration: none; padding: 13px 14px; border-radius: 14px; font-weight: 800; transition: background .2s ease, color .2s ease, transform .2s ease; }
+.admin-menu a:hover, .admin-menu a.active { background: rgba(244,196,90,.18); color: #fff; transform: translateX(2px); }
+.admin-sidebar-card { margin-top: auto; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); border-radius: 22px; padding: 18px; }
+.admin-sidebar-card span { font-size: 20px; font-weight: 900; }
+.admin-sidebar-card p { color: #cbd5e1; font-size: 14px; line-height: 1.55; }
+
+.admin-main { min-width: 0; padding: 34px clamp(20px, 3vw, 42px); }
+.admin-topbar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: start; gap: 16px; margin-bottom: 24px; }
+.admin-title-block { min-width: 0; }
+.admin-eyebrow { margin: 0 0 7px; color: var(--ia-gold-dark); font-size: 12px; font-weight: 950; letter-spacing: .09em; text-transform: uppercase; }
+.admin-topbar h2, .admin-card h3 { margin: 0; color: var(--ia-ink); letter-spacing: -.035em; }
+.admin-topbar h2 { font-size: clamp(30px, 4vw, 46px); }
+.admin-subtitle { color: var(--ia-muted); max-width: 780px; line-height: 1.55; margin-bottom: 0; }
+.admin-topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+
+.kpi-grid { display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.kpi-card, .admin-card, .candidate-card { background: rgba(255,255,255,.94); border: 1px solid var(--ia-line); border-radius: 26px; box-shadow: 0 18px 48px rgba(15,23,42,.055); }
+.kpi-card { position: relative; overflow: hidden; padding: 18px; }
+.kpi-card.primary { background: linear-gradient(135deg, #111827, #253047); color: #fff; }
+.kpi-card.primary .kpi-label, .kpi-card.primary small { color: #e5e7eb; }
+.kpi-card::after { content: ""; position: absolute; right: -28px; top: -28px; width: 82px; height: 82px; border-radius: 50%; background: rgba(244,196,90,.2); }
+.kpi-label { color: var(--ia-muted); font-weight: 850; font-size: 13px; }
+.kpi-card strong { display: block; margin: 12px 0 4px; font-size: 34px; letter-spacing: -.05em; }
+.kpi-card small { color: var(--ia-muted); }
+
+.admin-card { padding: 22px; margin-bottom: 18px; }
+.add-panel { display: grid; grid-template-columns: minmax(230px, .75fr) minmax(0, 1.25fr); gap: 18px; align-items: end; }
+.add-panel p { color: var(--ia-muted); margin-bottom: 0; }
+.admin-add-form { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(150px, 1fr) auto; gap: 12px; align-items: end; }
+.admin-add-form label, .comment-form label { display: grid; gap: 7px; min-width: 0; }
+.admin-add-form label span, .info-label { color: var(--ia-muted); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }
+.admin-section-heading { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 16px; }
+.admin-count { background: #f1f5f9; color: #475569; border-radius: 999px; padding: 9px 13px; font-weight: 900; white-space: nowrap; }
+
+.candidate-list { display: grid; gap: 14px; }
+.candidate-card { display: grid; grid-template-columns: minmax(210px, 1fr) minmax(280px, 1.25fr) minmax(230px, .95fr) minmax(280px, 1.1fr); gap: 16px; align-items: center; padding: 16px; overflow: hidden; }
+.candidate-main { display: flex; gap: 12px; align-items: center; min-width: 0; }
+.avatar { width: 46px; height: 46px; flex: 0 0 46px; border-radius: 16px; background: #0f172a; color: var(--ia-gold); display: grid; place-items: center; font-weight: 950; text-transform: uppercase; }
+.candidate-identity { min-width: 0; }
+.candidate-identity strong { display: block; font-size: 17px; line-height: 1.18; }
+.candidate-identity small { display: block; color: var(--ia-muted); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.candidate-info-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 14px; min-width: 0; }
+.info-block { min-width: 0; }
+.info-block strong, .info-block small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.info-block strong { margin-top: 5px; font-size: 16px; }
+.info-block small { color: var(--ia-muted); margin-top: 4px; }
+.status-block { display: grid; gap: 9px; align-content: center; }
+.status-badge { width: max-content; max-width: 100%; color: #111; border: 1px solid rgba(17,24,39,.08); box-shadow: inset 0 0 0 999px rgba(255,255,255,.25); font-weight: 950; }
+.status-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.comment-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: end; }
+.card-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 7px; justify-content: flex-start; align-items: center; border-top: 1px solid var(--ia-line); padding-top: 14px; }
+
+input, select { width: 100%; border: 1px solid var(--ia-line); border-radius: 14px; padding: 11px 12px; background: #fff; color: var(--ia-ink); outline: none; box-sizing: border-box; font: inherit; }
+input:focus, select:focus { border-color: var(--ia-gold); box-shadow: 0 0 0 4px rgba(244,196,90,.22); }
+.badge { display: inline-flex; align-items: center; justify-content: center; padding: 7px 12px; border-radius: 12px; font-weight: 900; }
+.admin-btn { appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: var(--ia-gold); color: #111827; font-weight: 950; padding: 11px 15px; border: 0; border-radius: 14px; cursor: pointer; margin: 0; font-size: 14px; text-decoration: none !important; white-space: nowrap; box-shadow: 0 12px 24px rgba(244,196,90,.24); transition: transform .16s ease, box-shadow .16s ease, filter .16s ease; }
+.admin-btn:hover { filter: brightness(.98); transform: translateY(-1px); }
+.admin-btn.small { font-size: 12px; padding: 9px 11px; border-radius: 12px; }
+.admin-btn-secondary { background: #111827; color: #fff; box-shadow: 0 12px 24px rgba(17,24,39,.14); }
+.admin-btn-light, .admin-btn-ghost { background: #fff; color: #111827; border: 1px solid var(--ia-line); box-shadow: none; }
+.admin-btn.danger { background: #ef4444; color: #fff; box-shadow: 0 12px 24px rgba(239,68,68,.18); }
+.inline-form { display: inline-flex; margin: 0; }
+.empty-state { text-align: center; color: var(--ia-muted); padding: 36px; border: 1px dashed var(--ia-line); border-radius: 20px; background: var(--ia-soft); }
+
+.modal { display:none; position:fixed; z-index:1000; inset:0; background:rgba(15,23,42,.58); backdrop-filter: blur(6px); padding: 20px; box-sizing: border-box; }
+.modal-content { position: relative; background:#fff; margin:7vh auto; padding:26px; border-radius:26px; width:min(560px, 100%); max-height: 82vh; overflow: auto; box-shadow:0 24px 80px rgba(15,23,42,.28); }
 .modal-content h3 { margin-top:0; }
-.close { float:right; font-size:22px; cursor:pointer; }
+.modal-close { position: absolute; top: 14px; right: 14px; width: 38px; height: 38px; border-radius: 12px; border: 1px solid var(--ia-line); background: #fff; color: var(--ia-muted); font-size: 24px; cursor: pointer; }
+.relance-modal h4 { margin: 18px 0 10px; }
+.modal-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+@media (max-width: 1420px) {
+  .candidate-card { grid-template-columns: minmax(220px, 1fr) minmax(280px, 1.1fr); align-items: start; }
+}
+
+@media (max-width: 1180px) {
+  .admin-shell { grid-template-columns: 1fr; }
+  .admin-sidebar { position: fixed; left: 0; top: 0; width: min(88vw, 330px); transform: translateX(-105%); transition: transform .22s ease; box-shadow: 30px 0 80px rgba(15,23,42,.25); }
+  .admin-shell.sidebar-open .admin-sidebar { transform: translateX(0); }
+  .admin-shell.sidebar-open::after { content: ""; position: fixed; inset: 0; z-index: 10; background: rgba(15,23,42,.35); }
+  .sidebar-fab, .admin-icon-btn { display: inline-grid; place-items: center; }
+  .admin-topbar { grid-template-columns: auto 1fr; }
+  .admin-topbar-actions { grid-column: 1 / -1; justify-content: flex-start; }
+  .kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .add-panel { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  .admin-main { padding: 22px 14px 80px; }
+  .admin-topbar h2 { font-size: 30px; }
+  .kpi-grid, .admin-add-form, .candidate-card, .candidate-info-grid, .status-form, .comment-form { grid-template-columns: 1fr; }
+  .admin-section-heading, .admin-topbar-actions { align-items: stretch; }
+  .admin-topbar-actions .admin-btn, .admin-add-form .admin-btn, .card-actions .admin-btn, .card-actions form { width: 100%; }
+  .card-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .card-actions form .admin-btn { width: 100%; }
+  .candidate-identity small { max-width: 100%; }
+}
 </style>
 
-<!-- Script ouverture/fermeture -->
 <script>
+function toggleSidebar() {
+  var shell = document.getElementById("adminShell");
+  if (window.matchMedia("(max-width: 1180px)").matches) {
+    shell.classList.toggle("sidebar-open");
+    shell.classList.remove("sidebar-collapsed");
+  } else {
+    shell.classList.toggle("sidebar-collapsed");
+    shell.classList.remove("sidebar-open");
+  }
+}
+function closeSidebarOnMobile() {
+  if (window.matchMedia("(max-width: 1180px)").matches) {
+    document.getElementById("adminShell").classList.remove("sidebar-open");
+  }
+}
 function openLogs(id) {
   document.getElementById("modal-" + id).style.display = "block";
 }
@@ -148,16 +395,18 @@ function closeRelance(id) {
   document.getElementById("relance-" + id).style.display = "none";
 }
 window.onclick = function(event) {
-  document.querySelectorAll(".modal").forEach(function(modal){
-    if (event.target === modal) modal.style.display = "none";
-  });
+  if (event.target.classList && event.target.classList.contains("modal")) {
+    event.target.style.display = "none";
+  }
+  if (event.target.id === "adminShell" || event.target.classList.contains("admin-shell")) {
+    event.target.classList.remove("sidebar-open");
+  }
 }
+document.addEventListener("keydown", function(event) {
+  if (event.key === "Escape") {
+    document.querySelectorAll(".modal").forEach(function(modal){ modal.style.display = "none"; });
+    document.getElementById("adminShell").classList.remove("sidebar-open");
+  }
+});
 </script>
-
-<style>
-a.admin-btn {
-  text-decoration: none !important;
-}
-</style>
-
 {% endblock %}
