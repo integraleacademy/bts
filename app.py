@@ -125,6 +125,20 @@ def add_log(contract, message):
     contract["logs"].append(f"[{ts}] {message}")
 
 # filtre couleur statuts
+
+@app.template_filter("format_pairs")
+def format_pairs(value):
+    """Affiche une suite de chiffres groupée 2 par 2."""
+    digits = _digits_only(value)
+    if not digits:
+        return "-"
+    return " ".join(digits[i:i + 2] for i in range(0, len(digits), 2))
+
+@app.template_filter("format_phone")
+def format_phone(value):
+    """Affiche les numéros de téléphone avec des chiffres groupés 2 par 2."""
+    return format_pairs(value)
+
 @app.template_filter("status_color")
 def status_color(status):
     mapping = {

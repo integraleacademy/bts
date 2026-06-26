@@ -1,159 +1,85 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 style="text-align:center; margin-bottom:20px;">📑 Fiche contrat</h2>
-
-<div class="fiche-container">
-  <div class="fiche-card">
-    <table class="fiche-table">
-      <tr>
-        <th>Nom</th>
-        <td>{{ row.nom }}</td>
-      </tr>
-      <tr>
-        <th>Prénom</th>
-        <td>{{ row.prenom }}</td>
-      </tr>
-      <tr>
-        <th>Email</th>
-        <td>{{ row.mail or '-' }}</td>
-      </tr>
-      <tr>
-        <th>Téléphone</th>
-        <td>{{ row.tel or '-' }}</td>
-      </tr>
-      <tr>
-        <th>BTS</th>
-        <td>{{ row.bts }}</td>
-      </tr>
-      <tr>
-        <th>Entreprise</th>
-        <td>{{ row.entreprise }}</td>
-      </tr>
-      <tr>
-        <th>SIRET</th>
-        <td>{{ row.siret }}</td>
-      </tr>
-      <tr>
-        <th>Caisse de retraite complémentaire</th>
-        <td>{{ row.caisse_retraite or '-' }}</td>
-      </tr>
-      <tr>
-        <th>OPCO de rattachement de l'entreprise</th>
-        <td>{{ row.opco or '-' }}</td>
-      </tr>
-      <tr>
-        <th>Numéro de convention collective</th>
-        <td>{{ row.numero_convention_collective or '-' }}</td>
-      </tr>
-      <tr>
-        <th>Nom du responsable</th>
-        <td>{{ row.resp_nom }}</td>
-      </tr>
-      <tr>
-        <th>Email du responsable</th>
-        <td>{{ row.resp_mail }}</td>
-      </tr>
-      <tr>
-        <th>Téléphone du responsable</th>
-        <td>{{ row.resp_tel }}</td>
-      </tr>
-      <tr>
-        <th>Maître d'apprentissage - nom</th>
-        <td>{{ row.maitre_nom or '-' }}</td>
-      </tr>
-      <tr>
-        <th>Maître d'apprentissage - prénom</th>
-        <td>{{ row.maitre_prenom or '-' }}</td>
-      </tr>
-      <tr>
-        <th>Maître d'apprentissage - email</th>
-        <td>{{ row.maitre_mail or '-' }}</td>
-      </tr>
-      <tr>
-        <th>Maître d'apprentissage - emploi occupé</th>
-        <td>{{ row.maitre_emploi or '-' }}</td>
-      </tr>
-      <tr>
-        <th>Maître d'apprentissage - diplôme le plus élevé obtenu</th>
-        <td>{{ row.maitre_diplome or '-' }}</td>
-      </tr>
-      <tr>
-        <th>Date de début</th>
-        <td>{{ row.date_debut }}</td>
-      </tr>
-      <tr>
-        <th>Status</th>
-        <td>
-          <span class="badge" style="background: {{ row.status|status_color }}; padding:5px 10px; border-radius:8px; color:white;">
-            {{ row.status }}
-          </span>
-        </td>
-      </tr>
-      <tr>
-        <th>Commentaire</th>
-        <td>{{ row.commentaire or '-' }}</td>
-      </tr>
-    </table>
-
-    <div class="fiche-actions">
-      <a href="{{ url_for('admin') }}" class="btn-retour">⬅️ Retour</a>
-      <button onclick="window.print()" class="btn-print">🖨️ Imprimer</button>
+<section class="fiche-page" aria-labelledby="fiche-title">
+  <div class="fiche-hero">
+    <div>
+      <p class="fiche-eyebrow">Fiche contrat</p>
+      <h2 id="fiche-title">{{ row.prenom }} {{ row.nom }}</h2>
+      <p class="fiche-subtitle">{{ row.bts or 'Formation non renseignée' }} · {{ row.entreprise or 'Entreprise non renseignée' }}</p>
     </div>
+    <span class="fiche-status" style="--status-color: {{ row.status|status_color }};">
+      {{ row.status }}
+    </span>
   </div>
-</div>
 
-<style>
-  .fiche-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-  }
-  .fiche-card {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    max-width: 700px;
-    width: 100%;
-  }
-  .fiche-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  .fiche-table th {
-    text-align: left;
-    background: #f4c45a;
-    padding: 10px;
-    width: 30%;
-  }
-  .fiche-table td {
-    padding: 10px;
-    background: #fff9f0;
-  }
-  .fiche-actions {
-    margin-top: 20px;
-    text-align: right;
-  }
-  .btn-retour, .btn-print {
-    display: inline-block;
-    padding: 10px 18px;
-    margin-left: 10px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  .btn-retour {
-    background: #eee;
-    color: #333;
-  }
-  .btn-print {
-    background: #4CAF50;
-    color: white;
-    border: none;
-  }
-  .btn-print:hover {
-    background: #43a047;
-  }
-</style>
+  <div class="fiche-grid">
+    <article class="fiche-panel fiche-panel-highlight">
+      <div class="fiche-panel-header">
+        <span class="fiche-icon">👤</span>
+        <div>
+          <h3>Apprenti</h3>
+          <p>Coordonnées du candidat</p>
+        </div>
+      </div>
+      <dl class="fiche-details">
+        <div><dt>Nom</dt><dd>{{ row.nom or '-' }}</dd></div>
+        <div><dt>Prénom</dt><dd>{{ row.prenom or '-' }}</dd></div>
+        <div><dt>Email</dt><dd>{{ row.mail or '-' }}</dd></div>
+        <div><dt>Téléphone</dt><dd>{{ row.tel|format_phone }}</dd></div>
+        <div><dt>BTS</dt><dd>{{ row.bts or '-' }}</dd></div>
+        <div><dt>Date de début</dt><dd>{{ row.date_debut or '-' }}</dd></div>
+      </dl>
+    </article>
+
+    <article class="fiche-panel">
+      <div class="fiche-panel-header">
+        <span class="fiche-icon">🏢</span>
+        <div>
+          <h3>Entreprise</h3>
+          <p>Informations employeur</p>
+        </div>
+      </div>
+      <dl class="fiche-details">
+        <div><dt>Entreprise</dt><dd>{{ row.entreprise or '-' }}</dd></div>
+        <div><dt>SIRET</dt><dd class="fiche-mono">{{ row.siret|format_pairs }}</dd></div>
+        <div><dt>Responsable</dt><dd>{{ row.resp_nom or '-' }}</dd></div>
+        <div><dt>Email responsable</dt><dd>{{ row.resp_mail or '-' }}</dd></div>
+        <div><dt>Téléphone responsable</dt><dd>{{ row.resp_tel|format_phone }}</dd></div>
+      </dl>
+    </article>
+
+    <article class="fiche-panel">
+      <div class="fiche-panel-header">
+        <span class="fiche-icon">🎓</span>
+        <div>
+          <h3>Maître d'apprentissage</h3>
+          <p>Référent en entreprise</p>
+        </div>
+      </div>
+      <dl class="fiche-details">
+        <div><dt>Nom</dt><dd>{{ row.maitre_nom or '-' }}</dd></div>
+        <div><dt>Prénom</dt><dd>{{ row.maitre_prenom or '-' }}</dd></div>
+        <div><dt>Email</dt><dd>{{ row.maitre_mail or '-' }}</dd></div>
+        <div><dt>Emploi occupé</dt><dd>{{ row.maitre_emploi or '-' }}</dd></div>
+        <div><dt>Diplôme le plus élevé obtenu</dt><dd>{{ row.maitre_diplome or '-' }}</dd></div>
+      </dl>
+    </article>
+
+    <article class="fiche-panel fiche-panel-note">
+      <div class="fiche-panel-header">
+        <span class="fiche-icon">💬</span>
+        <div>
+          <h3>Commentaire</h3>
+          <p>Suivi administratif</p>
+        </div>
+      </div>
+      <p class="fiche-comment">{{ row.commentaire or 'Aucun commentaire pour le moment.' }}</p>
+    </article>
+  </div>
+
+  <div class="fiche-actions">
+    <a href="{{ url_for('admin') }}" class="fiche-btn fiche-btn-secondary">⬅️ Retour</a>
+    <button onclick="window.print()" class="fiche-btn fiche-btn-primary">🖨️ Imprimer</button>
+  </div>
+</section>
 {% endblock %}
