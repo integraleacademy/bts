@@ -34,6 +34,18 @@
         <td>{{ row.siret }}</td>
       </tr>
       <tr>
+        <th>Caisse de retraite complémentaire</th>
+        <td>{{ row.caisse_retraite or '-' }}</td>
+      </tr>
+      <tr>
+        <th>OPCO de rattachement de l'entreprise</th>
+        <td>{{ row.opco or '-' }}</td>
+      </tr>
+      <tr>
+        <th>Numéro de convention collective</th>
+        <td>{{ row.numero_convention_collective or '-' }}</td>
+      </tr>
+      <tr>
         <th>Nom du responsable</th>
         <td>{{ row.resp_nom }}</td>
       </tr>
