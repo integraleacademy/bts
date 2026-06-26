@@ -187,6 +187,9 @@ def submit():
         "bts": f.get("bts", "").strip(),
         "entreprise": f.get("entreprise", "").strip(),
         "siret": _digits_only(f.get("siret", "")),
+        "caisse_retraite": f.get("caisse_retraite", "").strip(),
+        "opco": f.get("opco", "").strip(),
+        "numero_convention_collective": f.get("numero_convention_collective", "").strip(),
         "resp_nom": f.get("resp_nom", "").strip(),
         "resp_mail": f.get("resp_mail", "").strip(),
         "resp_tel": f.get("resp_tel", "").strip(),
@@ -439,10 +442,21 @@ def logout():
     session.pop("is_admin", None)
     return redirect(url_for("login"))
 
+def _created_at_sort_key(row):
+    """Return a robust timestamp key so the newest dossiers appear first."""
+    created_at = row.get("created_at") or ""
+    if created_at.endswith("Z"):
+        created_at = created_at[:-1] + "+00:00"
+    try:
+        return datetime.fromisoformat(created_at).timestamp()
+    except (TypeError, ValueError):
+        return 0
+
+
 @app.route("/admin")
 @require_admin
 def admin():
-    data = _load_data()
+    data = sorted(_load_data(), key=_created_at_sort_key, reverse=True)
     return render_template("admin.html", rows=data, statuses=STATUSES)
 
 @app.route("/gestion-parcoursup")
@@ -463,6 +477,9 @@ def admin_add():
         "bts": f.get("bts", "").strip(),
         "entreprise": f.get("entreprise", "").strip(),
         "siret": _digits_only(f.get("siret", "")),
+        "caisse_retraite": f.get("caisse_retraite", "").strip(),
+        "opco": f.get("opco", "").strip(),
+        "numero_convention_collective": f.get("numero_convention_collective", "").strip(),
         "resp_nom": f.get("resp_nom", "").strip(),
         "resp_mail": f.get("resp_mail", "").strip(),
         "resp_tel": f.get("resp_tel", "").strip(),
@@ -564,6 +581,9 @@ def edit(id):
         contract["bts"] = request.form.get("bts", "").strip()
         contract["entreprise"] = request.form.get("entreprise", "").strip()
         contract["siret"] = _digits_only(request.form.get("siret", ""))
+        contract["caisse_retraite"] = request.form.get("caisse_retraite", "").strip()
+        contract["opco"] = request.form.get("opco", "").strip()
+        contract["numero_convention_collective"] = request.form.get("numero_convention_collective", "").strip()
         contract["resp_nom"] = request.form.get("resp_nom", "").strip()
         contract["resp_mail"] = request.form.get("resp_mail", "").strip()
         contract["resp_tel"] = request.form.get("resp_tel", "").strip()

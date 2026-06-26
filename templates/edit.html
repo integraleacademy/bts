@@ -17,6 +17,9 @@
   </label>
   <label>Entreprise*<input name="entreprise" value="{{row.entreprise}}" required></label>
   <label>SIRET*<input name="siret" value="{{row.siret}}" required></label>
+  <label>Caisse de retraite complémentaire*<input name="caisse_retraite" value="{{row.caisse_retraite or ''}}" required></label>
+  <label>OPCO de rattachement de l'entreprise*<input name="opco" value="{{row.opco or ''}}" required></label>
+  <label>Numéro de convention collective*<input name="numero_convention_collective" value="{{row.numero_convention_collective or ''}}" required></label>
   <label>Nom responsable*<input name="resp_nom" value="{{row.resp_nom}}" required></label>
   <label>Email responsable*<input type="email" name="resp_mail" value="{{row.resp_mail}}" required></label>
   <label>Téléphone responsable<input name="resp_tel" value="{{row.resp_tel}}"></label>

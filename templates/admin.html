@@ -108,17 +108,23 @@
     </section>
 
     <section class="admin-card candidates-panel" id="candidats">
-      <div class="admin-section-heading">
+      <div class="admin-section-heading candidates-heading">
         <div>
           <p class="admin-eyebrow">Suivi opérationnel</p>
           <h3>Candidats et contrats</h3>
+          <p class="admin-section-note">Les dossiers les plus récents sont affichés en premier.</p>
         </div>
-        <span class="admin-count">{{ rows|length }} dossier(s)</span>
+        <span class="admin-count" id="candidateCount">{{ rows|length }} dossier(s)</span>
       </div>
 
-      <div class="candidate-list">
+      <div class="candidate-search" role="search">
+        <label for="candidateSearch">Rechercher un nom</label>
+        <input id="candidateSearch" type="search" placeholder="Tapez un nom, prénom, entreprise, e-mail..." autocomplete="off">
+      </div>
+
+      <div class="candidate-list" id="candidateList">
         {% for r in rows %}
-        <article class="candidate-card">
+        <article class="candidate-card" data-search="{{ (r.prenom ~ ' ' ~ r.nom ~ ' ' ~ (r.mail or '') ~ ' ' ~ (r.tel or '') ~ ' ' ~ (r.bts or '') ~ ' ' ~ (r.entreprise or '') ~ ' ' ~ (r.resp_nom or '') ~ ' ' ~ (r.maitre_prenom or '') ~ ' ' ~ (r.maitre_nom or ''))|lower|e }}">
           <div class="candidate-main">
             <span class="avatar">{{ (r.prenom or '?')[:1] }}{{ (r.nom or '')[:1] }}</span>
             <div class="candidate-identity">
@@ -304,6 +310,9 @@ main { max-width: none; margin: 0; padding: 0; }
 .admin-add-form label span, .info-label { color: var(--ia-muted); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }
 .admin-section-heading { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 16px; }
 .admin-count { background: #f1f5f9; color: #475569; border-radius: 999px; padding: 9px 13px; font-weight: 900; white-space: nowrap; }
+.admin-section-note { margin: 6px 0 0; color: var(--ia-muted); font-size: 14px; }
+.candidate-search { display: grid; gap: 8px; margin: -4px 0 16px; }
+.candidate-search label { color: var(--ia-muted); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }
 
 .candidate-list { display: grid; gap: 14px; }
 .candidate-card { display: grid; grid-template-columns: minmax(210px, 1fr) minmax(320px, 1.35fr) minmax(260px, .9fr); gap: 16px; align-items: center; padding: 16px; overflow: hidden; }
@@ -416,5 +425,40 @@ document.addEventListener("keydown", function(event) {
     document.getElementById("adminShell").classList.remove("sidebar-open");
   }
 });
+
+var candidateSearch = document.getElementById("candidateSearch");
+var candidateCount = document.getElementById("candidateCount");
+var candidateCards = Array.prototype.slice.call(document.querySelectorAll(".candidate-card"));
+var totalCandidates = candidateCards.length;
+
+function normalizeSearchText(value) {
+  return (value || "")
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function updateCandidateCount(visibleCount) {
+  if (candidateCount) {
+    candidateCount.textContent = visibleCount + " dossier(s)" + (visibleCount === totalCandidates ? "" : " trouvé(s)");
+  }
+}
+
+if (candidateSearch) {
+  candidateSearch.addEventListener("input", function(event) {
+    var query = normalizeSearchText(event.target.value);
+    var visibleCount = 0;
+
+    candidateCards.forEach(function(card) {
+      var haystack = normalizeSearchText(card.getAttribute("data-search"));
+      var isVisible = !query || haystack.indexOf(query) !== -1;
+      card.hidden = !isVisible;
+      if (isVisible) { visibleCount += 1; }
+    });
+
+    updateCandidateCount(visibleCount);
+  });
+}
 </script>
 {% endblock %}
