@@ -363,14 +363,126 @@ header .logo { height: 50px; width: auto; }
 }
 
 @media print {
-  .fiche-page {
-    margin: 0;
-    max-width: none;
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
   }
 
-  .fiche-hero,
-  .fiche-panel {
+  html,
+  body {
+    min-height: 0;
+    background: #fff;
+  }
+
+  body {
+    font-size: 10px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  main {
+    padding: 0;
+  }
+
+  .fiche-page {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .fiche-hero {
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    padding: 12px 16px;
+    border-radius: 14px;
     box-shadow: none;
+  }
+
+  .fiche-hero::after {
+    display: none;
+  }
+
+  .fiche-eyebrow {
+    margin-bottom: 4px;
+    font-size: 8px;
+  }
+
+  .fiche-hero h2 {
+    font-size: 24px;
+    letter-spacing: -0.03em;
+  }
+
+  .fiche-subtitle {
+    margin-top: 5px;
+    font-size: 10px;
+  }
+
+  .fiche-status {
+    padding: 5px 9px;
+    font-size: 8px;
+    box-shadow: none;
+  }
+
+  .fiche-grid {
+    gap: 8px;
+  }
+
+  .fiche-panel {
+    border-radius: 12px;
+    box-shadow: none;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .fiche-panel-header {
+    gap: 8px;
+    padding: 9px 12px 5px;
+  }
+
+  .fiche-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 9px;
+    font-size: 14px;
+  }
+
+  .fiche-panel h3 {
+    font-size: 13px;
+  }
+
+  .fiche-panel-header p {
+    margin-top: 1px;
+    font-size: 8px;
+  }
+
+  .fiche-details {
+    padding: 0 12px 10px;
+  }
+
+  .fiche-details > div {
+    grid-template-columns: minmax(88px, 0.8fr) minmax(0, 1.6fr);
+    gap: 8px;
+    padding: 5px 0;
+  }
+
+  .fiche-details dt {
+    font-size: 7px;
+  }
+
+  .fiche-details dd {
+    font-size: 9px;
+  }
+
+  .fiche-comment {
+    min-height: 34px;
+    margin: 0 12px 10px;
+    padding: 8px;
+    border-radius: 10px;
+    font-size: 9px;
+    line-height: 1.35;
   }
 
   .fiche-actions,
