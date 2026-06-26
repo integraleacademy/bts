@@ -176,6 +176,11 @@ def submit():
         "resp_nom": f.get("resp_nom", "").strip(),
         "resp_mail": f.get("resp_mail", "").strip(),
         "resp_tel": f.get("resp_tel", "").strip(),
+        "maitre_nom": f.get("maitre_nom", "").strip(),
+        "maitre_prenom": f.get("maitre_prenom", "").strip(),
+        "maitre_mail": f.get("maitre_mail", "").strip(),
+        "maitre_emploi": f.get("maitre_emploi", "").strip(),
+        "maitre_diplome": f.get("maitre_diplome", "").strip(),
         "date_debut": f.get("date_debut", "").strip(),
         "status": "A traiter",
         "commentaire": "",
@@ -447,6 +452,11 @@ def admin_add():
         "resp_nom": f.get("resp_nom", "").strip(),
         "resp_mail": f.get("resp_mail", "").strip(),
         "resp_tel": f.get("resp_tel", "").strip(),
+        "maitre_nom": f.get("maitre_nom", "").strip(),
+        "maitre_prenom": f.get("maitre_prenom", "").strip(),
+        "maitre_mail": f.get("maitre_mail", "").strip(),
+        "maitre_emploi": f.get("maitre_emploi", "").strip(),
+        "maitre_diplome": f.get("maitre_diplome", "").strip(),
         "date_debut": f.get("date_debut", "").strip(),
         "status": f.get("status", "A traiter"),
         "commentaire": "",
@@ -543,6 +553,11 @@ def edit(id):
         contract["resp_nom"] = request.form.get("resp_nom", "").strip()
         contract["resp_mail"] = request.form.get("resp_mail", "").strip()
         contract["resp_tel"] = request.form.get("resp_tel", "").strip()
+        contract["maitre_nom"] = request.form.get("maitre_nom", "").strip()
+        contract["maitre_prenom"] = request.form.get("maitre_prenom", "").strip()
+        contract["maitre_mail"] = request.form.get("maitre_mail", "").strip()
+        contract["maitre_emploi"] = request.form.get("maitre_emploi", "").strip()
+        contract["maitre_diplome"] = request.form.get("maitre_diplome", "").strip()
         contract["date_debut"] = request.form.get("date_debut", "").strip()
         contract["status"] = request.form.get("status", "A traiter")
         contract["commentaire"] = request.form.get("commentaire", "").strip()

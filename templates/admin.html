@@ -138,6 +138,11 @@
               <strong>{{ r.bts or 'BTS à préciser' }}</strong>
               <small>{{ r.entreprise or 'Entreprise à préciser' }}</small>
             </div>
+            <div class="info-block">
+              <span class="info-label">Maître d'apprentissage</span>
+              <strong>{{ ((r.maitre_prenom or '') ~ ' ' ~ (r.maitre_nom or ''))|trim or 'À préciser' }}</strong>
+              <small>{{ r.maitre_emploi or r.maitre_mail or '-' }}</small>
+            </div>
           </div>
 
           <div class="status-block">
