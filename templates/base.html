@@ -10,8 +10,7 @@
     <h1>Intégrale Academy – Contrats</h1>
     <nav>
       {% if session.get('is_admin') %}
-        <a href="{{ url_for('admin') }}">Gestion Parcoursup</a>
-        <a href="{{ url_for('parcoursup_import') }}">Nettoyage import</a>
+        <a href="{{ url_for('admin') }}">Gestion contrats BTS</a>
         <a href="{{ url_for('logout') }}">Déconnexion</a>
       {% endif %}
     </nav>

@@ -35,14 +35,12 @@
       <a class="active" href="#dashboard" onclick="closeSidebarOnMobile()" data-label="Tableau de bord"><span>🏠</span>Tableau de bord</a>
       <a href="#candidats" onclick="closeSidebarOnMobile()" data-label="Candidats"><span>👥</span>Candidats</a>
       <a href="#add-candidat" onclick="closeSidebarOnMobile()" data-label="Ajouter"><span>➕</span>Ajouter</a>
-      <a href="{{ url_for('parcoursup_import') }}" data-label="Import Parcoursup"><span>🧹</span>Import Parcoursup</a>
       <a href="{{ url_for('logout') }}" data-label="Déconnexion"><span>↪</span>Déconnexion</a>
     </nav>
 
     <div class="admin-sidebar-card">
       <span>{{ rows|length }} dossier(s)</span>
       <p>{{ ns.formations|length }} formation(s) BTS active(s), {{ ns.en_attente }} dossier(s) à traiter.</p>
-      <a class="admin-btn admin-btn-light" href="{{ url_for('parcoursup_import') }}">Nettoyer un import</a>
     </div>
   </aside>
 
@@ -55,7 +53,6 @@
         <p class="admin-subtitle">Une vue claire pour suivre les candidats, statuts, commentaires, fiches et relances sans modifier les routes Flask existantes.</p>
       </div>
       <div class="admin-topbar-actions">
-        <a class="admin-btn admin-btn-secondary" href="{{ url_for('parcoursup_import') }}">Import Parcoursup</a>
         <a class="admin-btn" href="#add-candidat">Ajouter un candidat</a>
       </div>
     </header>
