@@ -428,10 +428,21 @@ def logout():
     session.pop("is_admin", None)
     return redirect(url_for("login"))
 
+def _created_at_sort_key(row):
+    """Return a robust timestamp key so the newest dossiers appear first."""
+    created_at = row.get("created_at") or ""
+    if created_at.endswith("Z"):
+        created_at = created_at[:-1] + "+00:00"
+    try:
+        return datetime.fromisoformat(created_at).timestamp()
+    except (TypeError, ValueError):
+        return 0
+
+
 @app.route("/admin")
 @require_admin
 def admin():
-    data = _load_data()
+    data = sorted(_load_data(), key=_created_at_sort_key, reverse=True)
     return render_template("admin.html", rows=data, statuses=STATUSES)
 
 @app.route("/gestion-parcoursup")
