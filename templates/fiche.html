@@ -42,6 +42,9 @@
       <dl class="fiche-details">
         <div><dt>Entreprise</dt><dd>{{ row.entreprise or '-' }}</dd></div>
         <div><dt>SIRET</dt><dd class="fiche-mono">{{ row.siret|format_pairs }}</dd></div>
+        <div><dt>Caisse de retraite complémentaire</dt><dd>{{ row.caisse_retraite or '-' }}</dd></div>
+        <div><dt>OPCO de rattachement</dt><dd>{{ row.opco or '-' }}</dd></div>
+        <div><dt>Convention collective</dt><dd>{{ row.numero_convention_collective or '-' }}</dd></div>
         <div><dt>Responsable</dt><dd>{{ row.resp_nom or '-' }}</dd></div>
         <div><dt>Email responsable</dt><dd>{{ row.resp_mail or '-' }}</dd></div>
         <div><dt>Téléphone responsable</dt><dd>{{ row.resp_tel|format_phone }}</dd></div>
