@@ -140,56 +140,55 @@
         {% set row_is_complete = ('incomplet' not in row_status_lower) and ('non complet' not in row_status_lower) and ('complet' in row_status_lower or 'opco' in row_status_lower or 'sign' in row_status_lower or 'saisi' in row_status_lower) %}
         {% set row_is_incomplete = (not row_is_complete) or row_missing_info %}
         <article class="candidate-card" data-filter-pending="{{ 'true' if row_is_pending else 'false' }}" data-filter-complete="{{ 'true' if row_is_complete else 'false' }}" data-filter-incomplete="{{ 'true' if row_is_incomplete else 'false' }}" data-filter-bts="{{ 'true' if r.bts else 'false' }}" data-search="{{ (r.prenom ~ ' ' ~ r.nom ~ ' ' ~ (r.mail or '') ~ ' ' ~ (r.tel or '') ~ ' ' ~ (r.bts or '') ~ ' ' ~ (r.entreprise or '') ~ ' ' ~ (r.resp_nom or '') ~ ' ' ~ (r.maitre_prenom or '') ~ ' ' ~ (r.maitre_nom or ''))|lower|e }}">
-          <div class="candidate-main">
-            <span class="avatar">{{ (r.prenom or '?')[:1] }}{{ (r.nom or '')[:1] }}</span>
-            <div class="candidate-identity">
-              <strong>{{ r.prenom }} {{ r.nom }}</strong>
-              <small title="{{ r.id }}">ID {{ r.id }}</small>
+          <div class="candidate-row">
+            <div class="candidate-main">
+              <span class="avatar">{{ (r.prenom or '?')[:1] }}{{ (r.nom or '')[:1] }}</span>
+              <div class="candidate-identity">
+                <strong>{{ r.prenom }} {{ r.nom }}</strong>
+                <small title="{{ r.id }}">ID {{ r.id }}</small>
+              </div>
             </div>
-          </div>
 
-          <div class="info-block contact-block">
-            <span class="info-label">Contact</span>
-            <strong title="{{ r.mail or '-' }}">{{ r.mail or '-' }}</strong>
-            <small>{{ r.tel or '-' }}</small>
-          </div>
+            <div class="info-block contact-block">
+              <span class="info-label">Contact</span>
+              <strong title="{{ r.mail or '-' }}">{{ r.mail or '-' }}</strong>
+              <small>{{ r.tel or '-' }}</small>
+            </div>
 
-          <div class="info-block training-block">
-            <span class="info-label">Formation</span>
-            <strong title="{{ r.bts or 'BTS à préciser' }}">{{ r.bts or 'BTS à préciser' }}</strong>
-            <small>{{ r.entreprise or 'Entreprise à préciser' }}</small>
-          </div>
+            <div class="info-block training-block">
+              <span class="info-label">Formation</span>
+              <strong title="{{ r.bts or 'BTS à préciser' }}">{{ r.bts or 'BTS à préciser' }}</strong>
+              <small>{{ r.entreprise or 'Entreprise à préciser' }}</small>
+            </div>
 
-          <div class="info-block mentor-block">
-            <span class="info-label">Maître d'apprentissage</span>
-            <strong>{{ ((r.maitre_prenom or '') ~ ' ' ~ (r.maitre_nom or ''))|trim or 'À préciser' }}</strong>
-            <small>{{ r.maitre_emploi or r.maitre_mail or '-' }}</small>
-          </div>
+            <div class="info-block mentor-block">
+              <span class="info-label">Maître d'apprentissage</span>
+              <strong>{{ ((r.maitre_prenom or '') ~ ' ' ~ (r.maitre_nom or ''))|trim or 'À préciser' }}</strong>
+              <small>{{ r.maitre_emploi or r.maitre_mail or '-' }}</small>
+            </div>
 
-          <div class="status-block">
-            <span class="badge status-badge" style="background: {{ r.status|status_color }};">
-              {{ r.status }}
-            </span>
-            <form method="post" action="/update/{{r.id}}" class="inline-form status-form">
-              <select name="status" aria-label="Changer le statut de {{ r.prenom }} {{ r.nom }}">
-                {% for s in statuses %}
-                  <option value="{{s}}" {% if s == r.status %}selected{% endif %}>{{s}}</option>
-                {% endfor %}
-              </select>
-              <button type="submit" class="admin-btn tiny admin-btn-light">OK</button>
-            </form>
-          </div>
-
-          <div class="card-actions">
-            <a class="admin-btn tiny admin-btn-secondary" href="{{ url_for('edit', id=r.id) }}">Modifier</a>
-            <a class="admin-btn tiny admin-btn-ghost" href="{{ url_for('fiche', id=r.id) }}">Fiche</a>
-            {% if r.logs %}
-              <button class="admin-btn tiny admin-btn-ghost" onclick="openLogs('{{ r.id }}')" type="button">Logs</button>
-            {% endif %}
-            <button type="button" class="admin-btn tiny admin-btn-light" onclick="openRelance('{{ r.id }}')">Relance</button>
-            <form method="post" action="/delete/{{r.id}}" class="inline-form">
-              <button type="submit" class="admin-btn tiny danger">Supprimer</button>
-            </form>
+            <div class="candidate-actions">
+              <span class="badge status-badge" style="background: {{ r.status|status_color }};">
+                {{ r.status }}
+              </span>
+              <form method="post" action="/update/{{r.id}}" class="inline-form status-form">
+                <select name="status" aria-label="Changer le statut de {{ r.prenom }} {{ r.nom }}">
+                  {% for s in statuses %}
+                    <option value="{{s}}" {% if s == r.status %}selected{% endif %}>{{s}}</option>
+                  {% endfor %}
+                </select>
+                <button type="submit" class="admin-btn tiny admin-btn-light">OK</button>
+              </form>
+              <a class="admin-btn tiny admin-btn-secondary" href="{{ url_for('edit', id=r.id) }}">Modifier</a>
+              <a class="admin-btn tiny admin-btn-ghost" href="{{ url_for('fiche', id=r.id) }}">Fiche</a>
+              {% if r.logs %}
+                <button class="admin-btn tiny admin-btn-ghost" onclick="openLogs('{{ r.id }}')" type="button">Logs</button>
+              {% endif %}
+              <button type="button" class="admin-btn tiny admin-btn-light" onclick="openRelance('{{ r.id }}')">Relance</button>
+              <form method="post" action="/delete/{{r.id}}" class="inline-form">
+                <button type="submit" class="admin-btn tiny danger">Supprimer</button>
+              </form>
+            </div>
           </div>
 
           <details class="candidate-details">
@@ -338,32 +337,35 @@ main { max-width: none; margin: 0; padding: 0; }
 .candidate-search { display: grid; gap: 8px; margin: -4px 0 16px; }
 .candidate-search label { color: var(--ia-muted); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }
 
-.candidate-list { display: grid; gap: 8px; }
-.candidate-card { display: grid; grid-template-columns: minmax(170px, 1.05fr) minmax(190px, 1.2fr) minmax(190px, 1.15fr) minmax(165px, .9fr) minmax(260px, 1.25fr) minmax(275px, auto); gap: 10px 14px; align-items: center; padding: 10px 12px; overflow: hidden; border-radius: 18px; box-shadow: 0 10px 30px rgba(15,23,42,.045); transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease; }
+.candidate-list { display: grid; gap: 12px; }
+.candidate-card { display: grid; gap: 12px; padding: 14px; overflow: hidden; border-radius: 18px; box-shadow: 0 10px 30px rgba(15,23,42,.045); transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease; }
 .candidate-card:hover { border-color: rgba(148,163,184,.7); box-shadow: 0 14px 34px rgba(15,23,42,.075); transform: translateY(-1px); }
-.candidate-main { display: flex; gap: 9px; align-items: center; min-width: 0; }
+.candidate-row { display: grid; grid-template-columns: minmax(170px, 1.05fr) minmax(185px, 1.2fr) minmax(185px, 1.15fr) minmax(165px, .95fr) minmax(390px, 1.65fr); gap: 12px 16px; align-items: center; width: 100%; min-width: 0; }
+.candidate-main { display: flex; gap: 10px; align-items: center; min-width: 0; }
 .avatar { width: 34px; height: 34px; flex: 0 0 34px; border-radius: 11px; background: #0f172a; color: var(--ia-gold); display: grid; place-items: center; font-size: 12px; font-weight: 950; text-transform: uppercase; }
 .candidate-identity { min-width: 0; }
 .candidate-identity strong { display: block; font-size: 15px; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.candidate-identity small { display: block; color: #94a3b8; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; margin-top: 2px; }
+.candidate-identity small { display: block; color: #94a3b8; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; margin-top: 2px; }
 .info-block { min-width: 0; }
 .info-block strong, .info-block small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .info-block strong { margin-top: 3px; font-size: 14px; line-height: 1.2; color: var(--ia-ink); }
 .info-block small { color: var(--ia-muted); margin-top: 2px; font-size: 12px; line-height: 1.2; }
-.status-block { display: grid; grid-template-columns: minmax(0, auto) minmax(155px, 1fr); gap: 7px; align-items: center; min-width: 0; }
-.status-badge { width: max-content; max-width: 100%; color: #111; border: 1px solid rgba(17,24,39,.08); box-shadow: inset 0 0 0 999px rgba(255,255,255,.25); font-weight: 950; font-size: 12px; padding: 6px 9px; border-radius: 999px; white-space: nowrap; }
-.status-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px; align-items: center; min-width: 0; }
-.status-form select { height: 34px; padding: 6px 26px 6px 9px; border-radius: 10px; font-size: 12px; }
-.comment-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: end; width: 100%; }
-.card-actions { display: flex; flex-wrap: nowrap; gap: 5px; justify-content: flex-end; align-items: center; min-width: 0; }
-.card-actions .inline-form { flex: 0 0 auto; }
-.candidate-details { grid-column: 1 / -1; border-top: 1px solid #eef2f7; padding-top: 8px; margin-top: 0; }
+.candidate-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; min-width: 0; }
+.status-badge { min-width: 132px; max-width: 100%; color: #111; border: 1px solid rgba(17,24,39,.08); box-shadow: inset 0 0 0 999px rgba(255,255,255,.25); font-weight: 950; font-size: 12px; padding: 7px 10px; border-radius: 999px; white-space: nowrap; }
+.status-form { display: flex; gap: 6px; align-items: center; min-width: 190px; flex: 0 1 250px; }
+.status-form select { min-width: 150px; height: 34px; padding: 6px 28px 6px 10px; border-radius: 10px; font-size: 12px; }
+.candidate-actions .admin-btn { min-height: 34px; }
+.candidate-actions .inline-form { flex: 0 0 auto; }
+.candidate-details { border-top: 1px solid #eef2f7; padding-top: 10px; margin-top: 0; width: 100%; }
 .candidate-details summary { width: max-content; color: var(--ia-muted); cursor: pointer; font-size: 12px; font-weight: 900; list-style: none; }
 .candidate-details summary::-webkit-details-marker { display: none; }
 .candidate-details summary::before { content: "+"; display: inline-grid; place-items: center; width: 16px; height: 16px; margin-right: 6px; border-radius: 999px; background: #f1f5f9; color: #475569; }
 .candidate-details[open] summary::before { content: "−"; }
-.action-comment-form { margin-top: 8px; max-width: none; }
-.action-comment-form input { min-width: 0; height: 36px; padding: 8px 10px; border-radius: 11px; }
+.comment-form { display: flex; gap: 10px; align-items: end; width: 100%; }
+.comment-form label { flex: 1; min-width: 0; }
+.action-comment-form { margin-top: 10px; max-width: none; }
+.action-comment-form input { flex: 1; min-width: 0; height: 40px; padding: 9px 12px; border-radius: 11px; }
+
 
 input, select { width: 100%; border: 1px solid var(--ia-line); border-radius: 14px; padding: 11px 12px; background: #fff; color: var(--ia-ink); outline: none; box-sizing: border-box; font: inherit; }
 input:focus, select:focus { border-color: var(--ia-gold); box-shadow: 0 0 0 4px rgba(244,196,90,.22); }
@@ -386,9 +388,8 @@ input:focus, select:focus { border-color: var(--ia-gold); box-shadow: 0 0 0 4px 
 .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
 @media (max-width: 1420px) {
-  .candidate-card { grid-template-columns: minmax(180px, 1fr) minmax(210px, 1.1fr) minmax(210px, 1.1fr); align-items: center; }
-  .status-block, .card-actions { grid-column: span 1; }
-  .card-actions { justify-content: flex-start; }
+  .candidate-row { grid-template-columns: minmax(180px, 1fr) minmax(210px, 1.1fr) minmax(210px, 1.1fr); align-items: center; }
+  .candidate-actions { grid-column: 1 / -1; justify-content: flex-start; }
 }
 
 @media (max-width: 1180px) {
@@ -406,13 +407,15 @@ input:focus, select:focus { border-color: var(--ia-gold); box-shadow: 0 0 0 4px 
 @media (max-width: 760px) {
   .admin-main { padding: 22px 14px 80px; }
   .admin-topbar h2 { font-size: 30px; }
-  .kpi-grid, .admin-add-form, .candidate-card, .status-form, .comment-form { grid-template-columns: 1fr; }
+  .kpi-grid, .admin-add-form { grid-template-columns: 1fr; }
+  .candidate-row { grid-template-columns: 1fr; align-items: stretch; }
   .admin-section-heading, .admin-topbar-actions { align-items: stretch; }
-  .admin-topbar-actions .admin-btn, .admin-add-form .admin-btn, .card-actions .admin-btn, .card-actions form { width: 100%; }
-  .status-block { grid-template-columns: 1fr; }
-  .card-actions { display: grid; grid-template-columns: 1fr 1fr; align-items: stretch; justify-content: stretch; }
-  .action-comment-form { grid-column: 1 / -1; max-width: none; margin-left: 0; }
-  .card-actions form .admin-btn { width: 100%; }
+  .admin-topbar-actions .admin-btn, .admin-add-form .admin-btn { width: 100%; }
+  .candidate-actions { display: grid; grid-template-columns: 1fr 1fr; align-items: stretch; justify-content: stretch; }
+  .candidate-actions .admin-btn, .candidate-actions form, .candidate-actions form .admin-btn, .status-form, .status-form select, .status-badge { width: 100%; min-width: 0; }
+  .status-form { grid-column: 1 / -1; flex: none; }
+  .comment-form { flex-direction: column; align-items: stretch; }
+  .action-comment-form { max-width: none; margin-left: 0; }
   .candidate-identity small { max-width: 100%; }
 }
 </style>
