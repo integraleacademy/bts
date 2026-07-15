@@ -144,6 +144,7 @@ def submit():
         "maitre_nom": f.get("maitre_nom", "").strip(),
         "maitre_prenom": f.get("maitre_prenom", "").strip(),
         "maitre_mail": f.get("maitre_mail", "").strip(),
+        "maitre_date_naissance": f.get("maitre_date_naissance", "").strip(),
         "maitre_emploi": f.get("maitre_emploi", "").strip(),
         "maitre_diplome": f.get("maitre_diplome", "").strip(),
         "date_debut": f.get("date_debut", "").strip(),
@@ -428,6 +429,7 @@ def admin_add():
         "maitre_nom": f.get("maitre_nom", "").strip(),
         "maitre_prenom": f.get("maitre_prenom", "").strip(),
         "maitre_mail": f.get("maitre_mail", "").strip(),
+        "maitre_date_naissance": f.get("maitre_date_naissance", "").strip(),
         "maitre_emploi": f.get("maitre_emploi", "").strip(),
         "maitre_diplome": f.get("maitre_diplome", "").strip(),
         "date_debut": f.get("date_debut", "").strip(),
@@ -532,6 +534,7 @@ def edit(id):
         contract["maitre_nom"] = request.form.get("maitre_nom", "").strip()
         contract["maitre_prenom"] = request.form.get("maitre_prenom", "").strip()
         contract["maitre_mail"] = request.form.get("maitre_mail", "").strip()
+        contract["maitre_date_naissance"] = request.form.get("maitre_date_naissance", "").strip()
         contract["maitre_emploi"] = request.form.get("maitre_emploi", "").strip()
         contract["maitre_diplome"] = request.form.get("maitre_diplome", "").strip()
         contract["date_debut"] = request.form.get("date_debut", "").strip()
