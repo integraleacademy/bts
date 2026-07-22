@@ -20,9 +20,10 @@ _SAVE_LOCK = threading.Lock()
 
 STATUSES = [
     "A traiter",
-    "Saisi par l'entreprise",
-    "Signature en cours",
-    "Transmis à l'OPCO"
+    "Saisi par Aurélie",
+    "Contrôlé par Clément",
+    "Transmis à l'OPCO",
+    "Anomalie",
 ]
 
 # -----------------------
@@ -74,9 +75,10 @@ def format_phone(value):
 def status_color(status):
     mapping = {
         "A traiter": "red",
-        "Saisi par l'entreprise": "orange",
-        "Signature en cours": "gold",
-        "Transmis à l'OPCO": "green"
+        "Saisi par Aurélie": "orange",
+        "Contrôlé par Clément": "yellow",
+        "Transmis à l'OPCO": "green",
+        "Anomalie": "black",
     }
     return mapping.get(status, "gray")
 
@@ -212,6 +214,8 @@ def admin_add():
 @require_admin
 def update(id):
     st = request.form.get("status", "A traiter")
+    if st not in STATUSES:
+        abort(400, "Statut invalide")
     data = _load_data()
     for r in data:
         if r["id"] == id:
@@ -280,7 +284,10 @@ def edit(id):
         contract["maitre_emploi"] = request.form.get("maitre_emploi", "").strip()
         contract["maitre_diplome"] = request.form.get("maitre_diplome", "").strip()
         contract["date_debut"] = request.form.get("date_debut", "").strip()
-        contract["status"] = request.form.get("status", "A traiter")
+        status = request.form.get("status", "A traiter")
+        if status not in STATUSES:
+            abort(400, "Statut invalide")
+        contract["status"] = status
         contract["commentaire"] = request.form.get("commentaire", "").strip()
         _save_data(data)
         flash("Contrat mis à jour.","ok")
@@ -298,7 +305,13 @@ def data_json():
         if not os.path.exists(DATA_FILE):
             result = {
                 "contracts": [],
-                "summary": {"a_traiter": 0, "signature_en_cours": 0, "saisi_entreprise": 0}
+                "summary": {
+                    "a_traiter": 0,
+                    "saisi_aurelie": 0,
+                    "controle_clement": 0,
+                    "transmis_opco": 0,
+                    "anomalie": 0,
+                }
             }
         else:
             with open(DATA_FILE, "r", encoding="utf-8") as f:
@@ -310,8 +323,10 @@ def data_json():
                 "contracts": data,
                 "summary": {
                     "a_traiter": sum(1 for d in data if d.get("status") == "A traiter"),
-                    "signature_en_cours": sum(1 for d in data if d.get("status") == "Signature en cours"),
-                    "saisi_entreprise": sum(1 for d in data if d.get("status") == "Saisi par l'entreprise")
+                    "saisi_aurelie": sum(1 for d in data if d.get("status") == "Saisi par Aurélie"),
+                    "controle_clement": sum(1 for d in data if d.get("status") == "Contrôlé par Clément"),
+                    "transmis_opco": sum(1 for d in data if d.get("status") == "Transmis à l'OPCO"),
+                    "anomalie": sum(1 for d in data if d.get("status") == "Anomalie"),
                 }
             }
 
