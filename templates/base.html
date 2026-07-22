@@ -24,5 +24,34 @@
   <footer>
     <p>© 2025 Intégrale Academy</p>
   </footer>
+  {% if session.get('is_admin') %}
+  <script>
+    (() => {
+      const storageKey = `admin-scroll-position:${window.location.pathname}${window.location.search}`;
+
+      // Conserver la position avant chaque navigation ou envoi de formulaire.
+      // Ainsi, après une modification, le retour à la liste ne replace pas
+      // l'utilisateur en haut de la page.
+      const saveScrollPosition = () => {
+        sessionStorage.setItem(storageKey, JSON.stringify({
+          x: window.scrollX,
+          y: window.scrollY,
+        }));
+      };
+
+      window.addEventListener('pagehide', saveScrollPosition);
+
+      const savedPosition = sessionStorage.getItem(storageKey);
+      if (!savedPosition) return;
+
+      try {
+        const { x, y } = JSON.parse(savedPosition);
+        requestAnimationFrame(() => window.scrollTo(x, y));
+      } catch (error) {
+        sessionStorage.removeItem(storageKey);
+      }
+    })();
+  </script>
+  {% endif %}
 </body>
 </html>
