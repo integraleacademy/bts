@@ -2,10 +2,9 @@
 {% block content %}
 {% set ns = namespace(en_attente=0, complets=0, incomplets=0, bts_actifs=0, formations=[]) %}
 {% for r in rows %}
-  {% set status_lower = (r.status or '')|lower %}
   {% set has_missing_info = not (r.mail and r.tel and r.bts and r.entreprise) %}
-  {% set is_pending = 'traiter' in status_lower or 'attente' in status_lower or 'non final' in status_lower %}
-  {% set is_complete = ('incomplet' not in status_lower) and ('non complet' not in status_lower) and ('complet' in status_lower or 'opco' in status_lower or 'sign' in status_lower or 'saisi' in status_lower) %}
+  {% set is_pending = r.status == 'A traiter' %}
+  {% set is_complete = r.status in ['Saisi par Aurélie', 'Contrôlé par Clément', "Transmis à l'OPCO"] %}
   {% set is_incomplete = (not is_complete) or has_missing_info %}
   {% if is_pending %}
     {% set ns.en_attente = ns.en_attente + 1 %}
@@ -79,7 +78,7 @@
       <article class="kpi-card" role="button" tabindex="0" data-filter="complete" aria-pressed="false">
         <span class="kpi-label">Complets</span>
         <strong>{{ ns.complets }}</strong>
-        <small>OPCO / signature / saisi</small>
+        <small>Saisi / contrôlé / transmis</small>
       </article>
       <article class="kpi-card" role="button" tabindex="0" data-filter="incomplete" aria-pressed="false">
         <span class="kpi-label">Incomplets</span>
@@ -134,10 +133,9 @@
 
       <div class="candidate-list" id="candidateList">
         {% for r in rows %}
-        {% set row_status_lower = (r.status or '')|lower %}
         {% set row_missing_info = not (r.mail and r.tel and r.bts and r.entreprise) %}
-        {% set row_is_pending = 'traiter' in row_status_lower or 'attente' in row_status_lower or 'non final' in row_status_lower %}
-        {% set row_is_complete = ('incomplet' not in row_status_lower) and ('non complet' not in row_status_lower) and ('complet' in row_status_lower or 'opco' in row_status_lower or 'sign' in row_status_lower or 'saisi' in row_status_lower) %}
+        {% set row_is_pending = r.status == 'A traiter' %}
+        {% set row_is_complete = r.status in ['Saisi par Aurélie', 'Contrôlé par Clément', "Transmis à l'OPCO"] %}
         {% set row_is_incomplete = (not row_is_complete) or row_missing_info %}
         <article class="candidate-card" data-filter-pending="{{ 'true' if row_is_pending else 'false' }}" data-filter-complete="{{ 'true' if row_is_complete else 'false' }}" data-filter-incomplete="{{ 'true' if row_is_incomplete else 'false' }}" data-filter-bts="{{ 'true' if r.bts else 'false' }}" data-search="{{ (r.prenom ~ ' ' ~ r.nom ~ ' ' ~ (r.mail or '') ~ ' ' ~ (r.tel or '') ~ ' ' ~ (r.bts or '') ~ ' ' ~ (r.entreprise or '') ~ ' ' ~ (r.resp_nom or '') ~ ' ' ~ (r.maitre_prenom or '') ~ ' ' ~ (r.maitre_nom or ''))|lower|e }}">
           <div class="candidate-row">
@@ -168,7 +166,7 @@
             </div>
 
             <div class="candidate-actions">
-              <span class="badge status-badge" style="background: {{ r.status|status_color }};">
+              <span class="badge status-badge{% if r.status == 'Anomalie' %} status-badge--dark{% endif %}" style="background: {{ r.status|status_color }};">
                 {{ r.status }}
               </span>
               <form method="post" action="/update/{{r.id}}" class="inline-form status-form">
@@ -302,6 +300,7 @@ main { max-width: none; margin: 0; padding: 0; }
 .info-block small { color: var(--ia-muted); margin-top: 2px; font-size: 12px; line-height: 1.2; }
 .candidate-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; min-width: 0; }
 .status-badge { min-width: 132px; max-width: 100%; color: #111; border: 1px solid rgba(17,24,39,.08); box-shadow: inset 0 0 0 999px rgba(255,255,255,.25); font-weight: 950; font-size: 12px; padding: 7px 10px; border-radius: 999px; white-space: nowrap; }
+.status-badge--dark { color: #fff; }
 .status-form { display: flex; gap: 6px; align-items: center; min-width: 190px; flex: 0 1 250px; }
 .status-form select { min-width: 150px; height: 34px; padding: 6px 28px 6px 10px; border-radius: 10px; font-size: 12px; }
 .candidate-actions .admin-btn { min-height: 34px; }
