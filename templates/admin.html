@@ -364,18 +364,34 @@ input:focus, select:focus { border-color: var(--ia-gold); box-shadow: 0 0 0 4px 
 </style>
 
 <script>
+var SIDEBAR_STATE_KEY = "ia-admin-sidebar-collapsed";
+
+function isMobileSidebar() {
+  return window.matchMedia("(max-width: 1180px)").matches;
+}
+
+function restoreSidebarState() {
+  var shell = document.getElementById("adminShell");
+  if (!shell || isMobileSidebar()) {
+    return;
+  }
+
+  shell.classList.toggle("sidebar-collapsed", localStorage.getItem(SIDEBAR_STATE_KEY) === "true");
+}
+
 function toggleSidebar() {
   var shell = document.getElementById("adminShell");
-  if (window.matchMedia("(max-width: 1180px)").matches) {
+  if (isMobileSidebar()) {
     shell.classList.toggle("sidebar-open");
     shell.classList.remove("sidebar-collapsed");
   } else {
     shell.classList.toggle("sidebar-collapsed");
     shell.classList.remove("sidebar-open");
+    localStorage.setItem(SIDEBAR_STATE_KEY, shell.classList.contains("sidebar-collapsed").toString());
   }
 }
 function closeSidebarOnMobile() {
-  if (window.matchMedia("(max-width: 1180px)").matches) {
+  if (isMobileSidebar()) {
     document.getElementById("adminShell").classList.remove("sidebar-open");
   }
 }
@@ -389,6 +405,16 @@ document.addEventListener("keydown", function(event) {
     document.getElementById("adminShell").classList.remove("sidebar-open");
   }
 });
+window.addEventListener("resize", function() {
+  var shell = document.getElementById("adminShell");
+  shell.classList.remove("sidebar-open");
+  if (isMobileSidebar()) {
+    shell.classList.remove("sidebar-collapsed");
+  } else {
+    restoreSidebarState();
+  }
+});
+restoreSidebarState();
 
 var candidateSearch = document.getElementById("candidateSearch");
 var candidateCount = document.getElementById("candidateCount");
