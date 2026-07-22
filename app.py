@@ -1,5 +1,6 @@
-import os, json, re, uuid, threading
+import os, json, re, smtplib, uuid, threading
 from datetime import datetime, timedelta
+from email.message import EmailMessage
 from flask import Flask, render_template, request, redirect, url_for, flash, session, abort
 import secrets
 
@@ -11,6 +12,13 @@ os.makedirs(DATA_DIR, exist_ok=True)
 DATA_FILE = os.path.join(DATA_DIR, "contracts.json")
 SECRET_KEY = os.environ.get("SECRET_KEY", "change-me")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin")
+NOTIFICATION_RECIPIENT = "aurelie@integraleacademy.com"
+SMTP_HOST = os.environ.get("SMTP_HOST")
+SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
+SMTP_USERNAME = os.environ.get("SMTP_USERNAME")
+SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD")
+SMTP_FROM = os.environ.get("SMTP_FROM", SMTP_USERNAME or "no-reply@integraleacademy.com")
+SMTP_USE_TLS = os.environ.get("SMTP_USE_TLS", "true").lower() in {"1", "true", "yes", "on"}
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -49,6 +57,35 @@ def _save_data(data):
 
 def _digits_only(s):
     return re.sub(r"\D", "", s or "")
+
+
+def _notify_new_pending_contract(contract):
+    """Notify Aurélie after a public contract submission has been saved."""
+    if not SMTP_HOST:
+        app.logger.warning("Notification e-mail non envoyée : SMTP_HOST n'est pas configuré.")
+        return
+
+    message = EmailMessage()
+    message["Subject"] = "Nouveau contrat d'apprentissage à traiter"
+    message["From"] = SMTP_FROM
+    message["To"] = NOTIFICATION_RECIPIENT
+    message.set_content(
+        "Un nouveau contrat d'apprentissage est à traiter.\n\n"
+        f"Apprenti : {contract['prenom']} {contract['nom']}\n"
+        f"Entreprise : {contract['entreprise'] or '-'}\n"
+        f"Formation : {contract['bts'] or '-'}\n"
+        f"Début du contrat : {contract['date_debut'] or '-'}\n"
+    )
+
+    try:
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as smtp:
+            if SMTP_USE_TLS:
+                smtp.starttls()
+            if SMTP_USERNAME and SMTP_PASSWORD:
+                smtp.login(SMTP_USERNAME, SMTP_PASSWORD)
+            smtp.send_message(message)
+    except (OSError, smtplib.SMTPException):
+        app.logger.exception("Échec de l'envoi de la notification de nouveau contrat.")
 
 def require_admin(view):
     def wrapper(*a, **kw):
@@ -143,6 +180,7 @@ def submit():
     data = _load_data()
     data.append(item)
     _save_data(data)
+    _notify_new_pending_contract(item)
 
     return render_template("thanks.html", prenom=item["prenom"])
 
