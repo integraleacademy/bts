@@ -58,7 +58,7 @@
       <div class="admin-title-block">
         <p class="admin-eyebrow">Espace administrateur</p>
         <h2>Tableau de bord administrateur</h2>
-        <p class="admin-subtitle">Une vue claire pour suivre les candidats, statuts, commentaires, fiches et relances sans modifier les routes Flask existantes.</p>
+        <p class="admin-subtitle">Une vue claire pour suivre les candidats, statuts, commentaires et fiches.</p>
       </div>
       <div class="admin-topbar-actions">
         <a class="admin-btn" href="#add-candidat">Ajouter un candidat</a>
@@ -181,10 +181,6 @@
               </form>
               <a class="admin-btn tiny admin-btn-secondary" href="{{ url_for('edit', id=r.id) }}">Modifier</a>
               <a class="admin-btn tiny admin-btn-ghost" href="{{ url_for('fiche', id=r.id) }}">Fiche</a>
-              {% if r.logs %}
-                <button class="admin-btn tiny admin-btn-ghost" onclick="openLogs('{{ r.id }}')" type="button">Logs</button>
-              {% endif %}
-              <button type="button" class="admin-btn tiny admin-btn-light" onclick="openRelance('{{ r.id }}')">Relance</button>
               <form method="post" action="/delete/{{r.id}}" class="inline-form">
                 <button type="submit" class="admin-btn tiny danger">Supprimer</button>
               </form>
@@ -202,52 +198,6 @@
             </form>
           </details>
 
-          {% if r.logs %}
-          <div id="modal-{{ r.id }}" class="modal">
-            <div class="modal-content">
-              <button class="modal-close" type="button" onclick="closeLogs('{{ r.id }}')">×</button>
-              <h3>Historique des mails</h3>
-              <ul>
-                {% for log in r.logs %}
-                  <li>{{ log }}</li>
-                {% endfor %}
-              </ul>
-            </div>
-          </div>
-          {% endif %}
-
-          <div id="relance-{{ r.id }}" class="modal">
-            <div class="modal-content relance-modal">
-              <button class="modal-close" type="button" onclick="closeRelance('{{ r.id }}')">×</button>
-              <h3>Choisir une relance</h3>
-
-              <h4>Apprenti</h4>
-              <div class="modal-actions">
-                <form method="post" action="/relance/{{r.id}}/apprenti/contrat_non_signe">
-                  <button class="admin-btn small">Contrat non signé</button>
-                </form>
-                <form method="post" action="/relance/{{r.id}}/apprenti/infos_non_completees">
-                  <button class="admin-btn small admin-btn-secondary">Entreprise n’a pas complété</button>
-                </form>
-              </div>
-
-              <h4>Entreprise</h4>
-              <div class="modal-actions">
-                <form method="post" action="/relance/{{r.id}}/entreprise/contrat_non_signe">
-                  <button class="admin-btn small">Contrat non signé</button>
-                </form>
-                <form method="post" action="/relance/{{r.id}}/entreprise/convention_non_signee">
-                  <button class="admin-btn small admin-btn-secondary">Convention non signée</button>
-                </form>
-                <form method="post" action="/relance/{{r.id}}/entreprise/documents_non_signes">
-                  <button class="admin-btn small admin-btn-secondary">Documents non signés</button>
-                </form>
-                <form method="post" action="/relance/{{r.id}}/entreprise/infos_non_completees">
-                  <button class="admin-btn small admin-btn-secondary">Infos non complétées</button>
-                </form>
-              </div>
-            </div>
-          </div>
         </article>
         {% else %}
         <div class="empty-state">Aucun candidat pour le moment. Ajoutez un premier dossier pour commencer.</div>
@@ -380,12 +330,6 @@ input:focus, select:focus { border-color: var(--ia-gold); box-shadow: 0 0 0 4px 
 .inline-form { display: inline-flex; margin: 0; }
 .empty-state { text-align: center; color: var(--ia-muted); padding: 36px; border: 1px dashed var(--ia-line); border-radius: 20px; background: var(--ia-soft); }
 
-.modal { display:none; position:fixed; z-index:1000; inset:0; background:rgba(15,23,42,.58); backdrop-filter: blur(6px); padding: 20px; box-sizing: border-box; }
-.modal-content { position: relative; background:#fff; margin:7vh auto; padding:26px; border-radius:26px; width:min(560px, 100%); max-height: 82vh; overflow: auto; box-shadow:0 24px 80px rgba(15,23,42,.28); }
-.modal-content h3 { margin-top:0; }
-.modal-close { position: absolute; top: 14px; right: 14px; width: 38px; height: 38px; border-radius: 12px; border: 1px solid var(--ia-line); background: #fff; color: var(--ia-muted); font-size: 24px; cursor: pointer; }
-.relance-modal h4 { margin: 18px 0 10px; }
-.modal-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
 @media (max-width: 1420px) {
   .candidate-row { grid-template-columns: minmax(180px, 1fr) minmax(210px, 1.1fr) minmax(210px, 1.1fr); align-items: center; }
@@ -436,29 +380,13 @@ function closeSidebarOnMobile() {
     document.getElementById("adminShell").classList.remove("sidebar-open");
   }
 }
-function openLogs(id) {
-  document.getElementById("modal-" + id).style.display = "block";
-}
-function closeLogs(id) {
-  document.getElementById("modal-" + id).style.display = "none";
-}
-function openRelance(id) {
-  document.getElementById("relance-" + id).style.display = "block";
-}
-function closeRelance(id) {
-  document.getElementById("relance-" + id).style.display = "none";
-}
 window.onclick = function(event) {
-  if (event.target.classList && event.target.classList.contains("modal")) {
-    event.target.style.display = "none";
-  }
   if (event.target.id === "adminShell" || event.target.classList.contains("admin-shell")) {
     event.target.classList.remove("sidebar-open");
   }
 }
 document.addEventListener("keydown", function(event) {
   if (event.key === "Escape") {
-    document.querySelectorAll(".modal").forEach(function(modal){ modal.style.display = "none"; });
     document.getElementById("adminShell").classList.remove("sidebar-open");
   }
 });
