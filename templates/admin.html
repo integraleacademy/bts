@@ -4,7 +4,7 @@
 {% for r in rows %}
   {% set has_missing_info = not (r.mail and r.tel and r.bts and r.entreprise) %}
   {% set is_pending = r.status == 'A traiter' %}
-  {% set is_complete = r.status in ['Saisi par Aurélie', 'Contrôlé par Clément', "Transmis à l'OPCO"] %}
+  {% set is_complete = r.status in ['Saisi par Aurélie', 'Contrôlé par Clément', "Transmis à l'OPCO", 'Signature en cours', "✅ Validé par l'OPCO"] %}
   {% set is_incomplete = (not is_complete) or has_missing_info %}
   {% if is_pending %}
     {% set ns.en_attente = ns.en_attente + 1 %}
@@ -78,7 +78,7 @@
       <article class="kpi-card" role="button" tabindex="0" data-filter="complete" aria-pressed="false">
         <span class="kpi-label">Complets</span>
         <strong>{{ ns.complets }}</strong>
-        <small>Saisi / contrôlé / transmis</small>
+        <small>Saisi / contrôlé / transmis / signé / validé</small>
       </article>
       <article class="kpi-card" role="button" tabindex="0" data-filter="incomplete" aria-pressed="false">
         <span class="kpi-label">Incomplets</span>
@@ -135,7 +135,7 @@
         {% for r in rows %}
         {% set row_missing_info = not (r.mail and r.tel and r.bts and r.entreprise) %}
         {% set row_is_pending = r.status == 'A traiter' %}
-        {% set row_is_complete = r.status in ['Saisi par Aurélie', 'Contrôlé par Clément', "Transmis à l'OPCO"] %}
+        {% set row_is_complete = r.status in ['Saisi par Aurélie', 'Contrôlé par Clément', "Transmis à l'OPCO", 'Signature en cours', "✅ Validé par l'OPCO"] %}
         {% set row_is_incomplete = (not row_is_complete) or row_missing_info %}
         <article class="candidate-card" data-filter-pending="{{ 'true' if row_is_pending else 'false' }}" data-filter-complete="{{ 'true' if row_is_complete else 'false' }}" data-filter-incomplete="{{ 'true' if row_is_incomplete else 'false' }}" data-filter-bts="{{ 'true' if r.bts else 'false' }}" data-search="{{ (r.prenom ~ ' ' ~ r.nom ~ ' ' ~ (r.mail or '') ~ ' ' ~ (r.tel or '') ~ ' ' ~ (r.bts or '') ~ ' ' ~ (r.entreprise or '') ~ ' ' ~ (r.resp_nom or '') ~ ' ' ~ (r.maitre_prenom or '') ~ ' ' ~ (r.maitre_nom or ''))|lower|e }}">
           <div class="candidate-row">

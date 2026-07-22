@@ -23,6 +23,8 @@ STATUSES = [
     "Saisi par Aurélie",
     "Contrôlé par Clément",
     "Transmis à l'OPCO",
+    "Signature en cours",
+    "✅ Validé par l'OPCO",
     "Anomalie",
 ]
 
@@ -78,6 +80,8 @@ def status_color(status):
         "Saisi par Aurélie": "orange",
         "Contrôlé par Clément": "yellow",
         "Transmis à l'OPCO": "green",
+        "Signature en cours": "blue",
+        "✅ Validé par l'OPCO": "green",
         "Anomalie": "black",
     }
     return mapping.get(status, "gray")
@@ -310,6 +314,8 @@ def data_json():
                     "saisi_aurelie": 0,
                     "controle_clement": 0,
                     "transmis_opco": 0,
+                    "signature_en_cours": 0,
+                    "valide_opco": 0,
                     "anomalie": 0,
                 }
             }
@@ -326,6 +332,8 @@ def data_json():
                     "saisi_aurelie": sum(1 for d in data if d.get("status") == "Saisi par Aurélie"),
                     "controle_clement": sum(1 for d in data if d.get("status") == "Contrôlé par Clément"),
                     "transmis_opco": sum(1 for d in data if d.get("status") == "Transmis à l'OPCO"),
+                    "signature_en_cours": sum(1 for d in data if d.get("status") == "Signature en cours"),
+                    "valide_opco": sum(1 for d in data if d.get("status") == "✅ Validé par l'OPCO"),
                     "anomalie": sum(1 for d in data if d.get("status") == "Anomalie"),
                 }
             }
