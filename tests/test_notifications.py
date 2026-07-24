@@ -91,6 +91,7 @@ class NewContractNotificationTests(unittest.TestCase):
         self.assertNotIn("Complets", page)
         self.assertNotIn("Incomplets", page)
         self.assertNotIn("BTS actifs", page)
+        self.assertIn(".candidate-card[hidden] { display: none; }", page)
 
     def test_admin_disables_empty_pending_kpi(self):
         self.data_file.write_text(json.dumps([]), encoding="utf-8")
