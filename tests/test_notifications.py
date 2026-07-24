@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+from html import escape
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -68,6 +69,42 @@ class NewContractNotificationTests(unittest.TestCase):
         self.assertEqual(message["To"], "aurelie@integraleacademy.com")
         self.assertEqual(message["Subject"], "Nouveau contrat d'apprentissage à traiter")
         self.assertIn("Jeanne Dupont", message.get_content())
+
+    def test_admin_kpis_filter_by_each_workflow_status(self):
+        contracts = [
+            {"id": str(index), "prenom": "Test", "nom": str(index), "bts": "BTS NDRC", "status": status}
+            for index, status in enumerate(contracts_app.STATUSES)
+        ]
+        self.data_file.write_text(json.dumps(contracts), encoding="utf-8")
+        with self.client.session_transaction() as session:
+            session["is_admin"] = True
+
+        response = self.client.get("/admin")
+        page = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('data-filter="all"', page)
+        for status in contracts_app.STATUSES:
+            self.assertIn('data-filter="{}"'.format(status), page)
+            escaped_status = escape(status, quote=True).replace("&#x27;", "&#39;")
+            self.assertIn('data-status="{}"'.format(escaped_status), page)
+        self.assertNotIn("Complets", page)
+        self.assertNotIn("Incomplets", page)
+        self.assertNotIn("BTS actifs", page)
+        self.assertIn(".candidate-card[hidden] { display: none; }", page)
+
+    def test_admin_disables_empty_pending_kpi(self):
+        self.data_file.write_text(json.dumps([]), encoding="utf-8")
+        with self.client.session_transaction() as session:
+            session["is_admin"] = True
+
+        response = self.client.get("/admin")
+        page = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('kpi-card--pending is-disabled', page)
+        self.assertIn('aria-disabled="true"', page)
+        self.assertNotIn('data-filter="A traiter"', page)
 
 
 if __name__ == "__main__":

@@ -1,22 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
-{% set ns = namespace(en_attente=0, complets=0, incomplets=0, bts_actifs=0, formations=[]) %}
+{% set ns = namespace(a_traiter=0, saisi_aurelie=0, controle_clement=0, transmis_opco=0, signature_en_cours=0, valide_opco=0, anomalie=0, formations=[]) %}
 {% for r in rows %}
-  {% set has_missing_info = not (r.mail and r.tel and r.bts and r.entreprise) %}
-  {% set is_pending = r.status == 'A traiter' %}
-  {% set is_complete = r.status in ['Saisi par Aurélie', 'Contrôlé par Clément', "Transmis à l'OPCO", 'Signature en cours', "✅ Validé par l'OPCO"] %}
-  {% set is_incomplete = (not is_complete) or has_missing_info %}
-  {% if is_pending %}
-    {% set ns.en_attente = ns.en_attente + 1 %}
-  {% endif %}
-  {% if is_complete %}
-    {% set ns.complets = ns.complets + 1 %}
-  {% endif %}
-  {% if is_incomplete %}
-    {% set ns.incomplets = ns.incomplets + 1 %}
-  {% endif %}
+  {% if r.status == 'A traiter' %}{% set ns.a_traiter = ns.a_traiter + 1 %}{% endif %}
+  {% if r.status == 'Saisi par Aurélie' %}{% set ns.saisi_aurelie = ns.saisi_aurelie + 1 %}{% endif %}
+  {% if r.status == 'Contrôlé par Clément' %}{% set ns.controle_clement = ns.controle_clement + 1 %}{% endif %}
+  {% if r.status == "Transmis à l'OPCO" %}{% set ns.transmis_opco = ns.transmis_opco + 1 %}{% endif %}
+  {% if r.status == 'Signature en cours' %}{% set ns.signature_en_cours = ns.signature_en_cours + 1 %}{% endif %}
+  {% if r.status == "✅ Validé par l'OPCO" %}{% set ns.valide_opco = ns.valide_opco + 1 %}{% endif %}
+  {% if r.status == 'Anomalie' %}{% set ns.anomalie = ns.anomalie + 1 %}{% endif %}
   {% if r.bts %}
-    {% set ns.bts_actifs = ns.bts_actifs + 1 %}
     {% if r.bts not in ns.formations %}
       {% set ns.formations = ns.formations + [r.bts] %}
     {% endif %}
@@ -47,7 +40,7 @@
 
     <div class="admin-sidebar-card">
       <span>{{ rows|length }} dossier(s)</span>
-      <p>{{ ns.formations|length }} formation(s) BTS active(s), {{ ns.en_attente }} dossier(s) à traiter.</p>
+      <p>{{ ns.formations|length }} formation(s) BTS active(s), {{ ns.a_traiter }} dossier(s) à traiter.</p>
     </div>
   </aside>
 
@@ -66,29 +59,44 @@
 
     <div class="kpi-grid" aria-label="Indicateurs administrateur">
       <article class="kpi-card primary is-active" role="button" tabindex="0" data-filter="all" aria-pressed="true">
-        <span class="kpi-label">Candidats / apprenants</span>
+        <span class="kpi-label">Tous les dossiers</span>
         <strong>{{ rows|length }}</strong>
-        <small>Total dossiers suivis</small>
+        <small>Vue d’ensemble</small>
       </article>
-      <article class="kpi-card" role="button" tabindex="0" data-filter="pending" aria-pressed="false">
-        <span class="kpi-label">En attente</span>
-        <strong>{{ ns.en_attente }}</strong>
-        <small>Dossiers à traiter</small>
+      <article class="kpi-card kpi-card--pending{% if ns.a_traiter == 0 %} is-disabled{% else %} has-pending-work{% endif %}"{% if ns.a_traiter > 0 %} role="button" tabindex="0" data-filter="A traiter" aria-pressed="false"{% else %} aria-disabled="true"{% endif %}>
+        <span class="kpi-label">À traiter <em>Nouveaux</em></span>
+        <strong>{{ ns.a_traiter }}</strong>
+        <small>{% if ns.a_traiter == 0 %}Aucun nouveau dossier{% else %}Dossier(s) à traiter{% endif %}</small>
       </article>
-      <article class="kpi-card" role="button" tabindex="0" data-filter="complete" aria-pressed="false">
-        <span class="kpi-label">Complets</span>
-        <strong>{{ ns.complets }}</strong>
-        <small>Saisi / contrôlé / transmis / signé / validé</small>
+      <article class="kpi-card" role="button" tabindex="0" data-filter="Saisi par Aurélie" aria-pressed="false">
+        <span class="kpi-label">Saisi par Aurélie</span>
+        <strong>{{ ns.saisi_aurelie }}</strong>
+        <small>Prêt pour le contrôle</small>
       </article>
-      <article class="kpi-card" role="button" tabindex="0" data-filter="incomplete" aria-pressed="false">
-        <span class="kpi-label">Incomplets</span>
-        <strong>{{ ns.incomplets }}</strong>
-        <small>Informations à finaliser</small>
+      <article class="kpi-card" role="button" tabindex="0" data-filter="Contrôlé par Clément" aria-pressed="false">
+        <span class="kpi-label">Contrôlé par Clément</span>
+        <strong>{{ ns.controle_clement }}</strong>
+        <small>Contrôles effectués</small>
       </article>
-      <article class="kpi-card" role="button" tabindex="0" data-filter="bts" aria-pressed="false">
-        <span class="kpi-label">BTS actifs</span>
-        <strong>{{ ns.bts_actifs }}</strong>
-        <small>Formations renseignées</small>
+      <article class="kpi-card" role="button" tabindex="0" data-filter="Transmis à l'OPCO" aria-pressed="false">
+        <span class="kpi-label">Transmis à l’OPCO</span>
+        <strong>{{ ns.transmis_opco }}</strong>
+        <small>En cours d’instruction</small>
+      </article>
+      <article class="kpi-card" role="button" tabindex="0" data-filter="Signature en cours" aria-pressed="false">
+        <span class="kpi-label">Signature en cours</span>
+        <strong>{{ ns.signature_en_cours }}</strong>
+        <small>Signatures attendues</small>
+      </article>
+      <article class="kpi-card" role="button" tabindex="0" data-filter="✅ Validé par l'OPCO" aria-pressed="false">
+        <span class="kpi-label">Validé par l’OPCO</span>
+        <strong>{{ ns.valide_opco }}</strong>
+        <small>Dossiers finalisés</small>
+      </article>
+      <article class="kpi-card kpi-card--anomaly" role="button" tabindex="0" data-filter="Anomalie" aria-pressed="false">
+        <span class="kpi-label">Anomalie</span>
+        <strong>{{ ns.anomalie }}</strong>
+        <small>À résoudre</small>
       </article>
     </div>
 
@@ -122,7 +130,7 @@
       </div>
 
       <div class="active-filter-bar" id="activeFilterBar">
-        <span id="activeFilterLabel">Filtre actif : Candidats / apprenants — {{ rows|length }} dossier(s)</span>
+        <span id="activeFilterLabel">Filtre actif : Tous les dossiers — {{ rows|length }} dossier(s)</span>
         <button class="admin-btn tiny admin-btn-light" type="button" id="resetCandidateFilter" hidden>Réinitialiser</button>
       </div>
 
@@ -133,11 +141,7 @@
 
       <div class="candidate-list" id="candidateList">
         {% for r in rows %}
-        {% set row_missing_info = not (r.mail and r.tel and r.bts and r.entreprise) %}
-        {% set row_is_pending = r.status == 'A traiter' %}
-        {% set row_is_complete = r.status in ['Saisi par Aurélie', 'Contrôlé par Clément', "Transmis à l'OPCO", 'Signature en cours', "✅ Validé par l'OPCO"] %}
-        {% set row_is_incomplete = (not row_is_complete) or row_missing_info %}
-        <article class="candidate-card" data-filter-pending="{{ 'true' if row_is_pending else 'false' }}" data-filter-complete="{{ 'true' if row_is_complete else 'false' }}" data-filter-incomplete="{{ 'true' if row_is_incomplete else 'false' }}" data-filter-bts="{{ 'true' if r.bts else 'false' }}" data-search="{{ (r.prenom ~ ' ' ~ r.nom ~ ' ' ~ (r.mail or '') ~ ' ' ~ (r.tel or '') ~ ' ' ~ (r.bts or '') ~ ' ' ~ (r.entreprise or '') ~ ' ' ~ (r.resp_nom or '') ~ ' ' ~ (r.maitre_prenom or '') ~ ' ' ~ (r.maitre_nom or ''))|lower|e }}">
+        <article class="candidate-card" data-status="{{ r.status|e }}" data-search="{{ (r.prenom ~ ' ' ~ r.nom ~ ' ' ~ (r.mail or '') ~ ' ' ~ (r.tel or '') ~ ' ' ~ (r.bts or '') ~ ' ' ~ (r.entreprise or '') ~ ' ' ~ (r.resp_nom or '') ~ ' ' ~ (r.maitre_prenom or '') ~ ' ' ~ (r.maitre_nom or ''))|lower|e }}">
           <div class="candidate-row">
             <div class="candidate-main">
               <span class="avatar">{{ (r.prenom or '?')[:1] }}{{ (r.nom or '')[:1] }}</span>
@@ -259,18 +263,31 @@ main { max-width: none; margin: 0; padding: 0; }
 .admin-subtitle { color: var(--ia-muted); max-width: 780px; line-height: 1.55; margin-bottom: 0; }
 .admin-topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
 
-.kpi-grid { display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(185px, 1fr)); gap: 14px; margin-bottom: 18px; }
 .kpi-card, .admin-card, .candidate-card { background: rgba(255,255,255,.94); border: 1px solid var(--ia-line); border-radius: 26px; box-shadow: 0 18px 48px rgba(15,23,42,.055); }
-.kpi-card { position: relative; overflow: hidden; padding: 18px; cursor: pointer; transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease, background .18s ease; }
+.kpi-card { position: relative; isolation: isolate; overflow: hidden; min-height: 118px; padding: 18px; cursor: pointer; transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease, background .18s ease; }
 .kpi-card:hover, .kpi-card:focus-visible { border-color: rgba(244,196,90,.78); box-shadow: 0 22px 54px rgba(15,23,42,.11); transform: translateY(-2px); outline: none; }
 .kpi-card.is-active { border: 2px solid var(--ia-gold-dark); background: linear-gradient(135deg, rgba(244,196,90,.22), rgba(255,255,255,.96)); box-shadow: 0 24px 58px rgba(217,169,45,.22); }
 .kpi-card.primary { background: linear-gradient(135deg, #111827, #253047); color: #fff; }
 .kpi-card.primary.is-active { border-color: var(--ia-gold); background: linear-gradient(135deg, #111827, #253047); box-shadow: 0 24px 62px rgba(15,23,42,.18), 0 0 0 4px rgba(244,196,90,.22); }
 .kpi-card.primary .kpi-label, .kpi-card.primary small { color: #e5e7eb; }
 .kpi-card::after { content: ""; position: absolute; right: -28px; top: -28px; width: 82px; height: 82px; border-radius: 50%; background: rgba(244,196,90,.2); }
-.kpi-label { color: var(--ia-muted); font-weight: 850; font-size: 13px; }
-.kpi-card strong { display: block; margin: 12px 0 4px; font-size: 34px; letter-spacing: -.05em; }
-.kpi-card small { color: var(--ia-muted); }
+.kpi-label { display: flex; align-items: center; gap: 7px; color: var(--ia-muted); font-weight: 850; font-size: 13px; }
+.kpi-label em { padding: 3px 7px; border-radius: 999px; background: #fff3d4; color: #9a6200; font-size: 9px; font-style: normal; font-weight: 950; letter-spacing: .06em; text-transform: uppercase; }
+.kpi-card strong { position: relative; z-index: 1; display: block; margin: 12px 0 4px; font-size: 34px; letter-spacing: -.05em; }
+.kpi-card small { position: relative; z-index: 1; color: var(--ia-muted); }
+.kpi-card--pending { border: 2px solid #f59e0b; background: linear-gradient(135deg, #fffaf0, #fff 72%); box-shadow: 0 18px 48px rgba(245,158,11,.12); }
+.kpi-card--pending.is-active { border-color: #d97706; box-shadow: 0 0 0 4px rgba(245,158,11,.15), 0 24px 58px rgba(217,119,6,.2); }
+.kpi-card.has-pending-work::before { content: ""; position: absolute; inset: -7px; z-index: -1; border: 2px solid rgba(245,158,11,.75); border-radius: 31px; animation: pending-kpi-pulse 1.8s ease-out infinite; }
+.kpi-card.is-disabled { cursor: not-allowed; border-color: #e2e8f0; background: #f8fafc; box-shadow: none; color: #94a3b8; }
+.kpi-card.is-disabled::after { background: rgba(148,163,184,.12); }
+.kpi-card.is-disabled .kpi-label, .kpi-card.is-disabled small { color: #94a3b8; }
+.kpi-card.is-disabled .kpi-label em { background: #e2e8f0; color: #94a3b8; }
+.kpi-card.is-disabled:hover { border-color: #e2e8f0; box-shadow: none; transform: none; }
+.kpi-card--anomaly { border-color: rgba(239,68,68,.28); }
+.kpi-card--anomaly.is-active { border-color: #ef4444; background: linear-gradient(135deg, #fff1f2, #fff); box-shadow: 0 24px 58px rgba(239,68,68,.16); }
+@keyframes pending-kpi-pulse { 0% { opacity: .8; transform: scale(.98); } 70%, 100% { opacity: 0; transform: scale(1.04); } }
+@media (prefers-reduced-motion: reduce) { .kpi-card.has-pending-work::before { animation: none; } }
 
 .admin-card { padding: 22px; margin-bottom: 18px; }
 .add-panel { display: grid; grid-template-columns: minmax(230px, .75fr) minmax(0, 1.25fr); gap: 18px; align-items: end; }
@@ -287,6 +304,7 @@ main { max-width: none; margin: 0; padding: 0; }
 
 .candidate-list { display: grid; gap: 12px; }
 .candidate-card { display: grid; gap: 12px; padding: 14px; overflow: hidden; border-radius: 18px; box-shadow: 0 10px 30px rgba(15,23,42,.045); transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease; }
+.candidate-card[hidden] { display: none; }
 .candidate-card:hover { border-color: rgba(148,163,184,.7); box-shadow: 0 14px 34px rgba(15,23,42,.075); transform: translateY(-1px); }
 .candidate-row { display: grid; grid-template-columns: minmax(170px, 1.05fr) minmax(185px, 1.2fr) minmax(185px, 1.15fr) minmax(165px, .95fr) minmax(390px, 1.65fr); gap: 12px 16px; align-items: center; width: 100%; min-width: 0; }
 .candidate-main { display: flex; gap: 10px; align-items: center; min-width: 0; }
@@ -427,11 +445,14 @@ var totalCandidates = candidateCards.length;
 var activeFilter = "all";
 
 var filterLabels = {
-  all: "Candidats / apprenants",
-  pending: "En attente",
-  complete: "Complets",
-  incomplete: "Incomplets",
-  bts: "BTS actifs"
+  all: "Tous les dossiers",
+  "A traiter": "À traiter",
+  "Saisi par Aurélie": "Saisi par Aurélie",
+  "Contrôlé par Clément": "Contrôlé par Clément",
+  "Transmis à l'OPCO": "Transmis à l’OPCO",
+  "Signature en cours": "Signature en cours",
+  "✅ Validé par l'OPCO": "Validé par l’OPCO",
+  "Anomalie": "Anomalie"
 };
 
 function normalizeSearchText(value) {
@@ -446,7 +467,7 @@ function cardMatchesFilter(card) {
   if (activeFilter === "all") {
     return true;
   }
-  return card.getAttribute("data-filter-" + activeFilter) === "true";
+  return card.getAttribute("data-status") === activeFilter;
 }
 
 function updateCandidateCount(visibleCount, filteredCount) {
